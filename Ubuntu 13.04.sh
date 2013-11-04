@@ -171,15 +171,14 @@ then
 	apt-get install -qq mysql-client mysql-server
 elif [[ $DATABASE == "2" ]];
 then
-        echo "Installing MariaDB Server"
-	mkdir -p /etc/mysql
+	echo "Installing MariaDB Server"
 	sed -i -e 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
 	sed -i -e 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	echo "" | tee -a /etc/apt/sources.list
         if ! grep -q '#MariaDB' "/etc/apt/sources.list" ; then
-                echo "" | tee -a /etc/apt/sources.list
-                echo "#MariaDB" | tee -a /etc/apt/sources.list
-                echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu raring main" | tee -a /etc/apt/sources.list
+			echo "" | tee -a /etc/apt/sources.list
+			echo "#MariaDB" | tee -a /etc/apt/sources.list
+			echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu raring main" | tee -a /etc/apt/sources.list
                 echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu raring main" | tee -a /etc/apt/sources.list
         fi
 	echo -e "Updating Apt Catalog\033[0m"
@@ -272,7 +271,7 @@ chmod 755 /var/log/nginx
 
 echo -e "\033[1;33mInstalling PHP, PHP-FPM"
 apt-get install -qq php5-fpm
-apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert php-apc memcached php5-memcache php5-memcached php5-xcache
+apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php-apc
 if [[ $DATABASE == "5" ]];
 then
 	apt-get install -qq php5-pgsql
