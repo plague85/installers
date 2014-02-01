@@ -174,10 +174,12 @@ echo "Configuring ssh"
 sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
 sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
 sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
-touch .Xauthority
+touch /root/.Xauthority
 touch /home/$SUDO_USER/.Xauthority
 service ssh restart
 
+# set to non interactive
+export DEBIAN_FRONTEND=noninteractive
 if [[ $DATABASE == "1" ]]; then
 	echo "Installing Mysql Server"
 	echo "Updating Apt Catalog"
@@ -253,7 +255,7 @@ elif [[ $DATABASE == "4" ]]; then
 	updateapt
 	purgesql
 	mkdir -p /etc/mysql
-	wget --no-check-certificate https://dl.dropboxusercontent.com/u/8760087/initial_my.cnf -O /etc/mysql/my.cnf
+	cp config/my_cnf.txt /etc/mysql/my.cnf
 	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
 elif [[ $DATABASE == "5" ]]; then
 	echo "Installing PostGreSQL Server"
@@ -278,7 +280,7 @@ fi
 
 #Installing Prerequirements
 echo -e "\033[1;33mInstalling Nginx (engineX)\033[0m"
-nginx=stable
+export nginx=stable
 add-apt-repository -y ppa:nginx/$nginx
 updateapt
 apt-get install -yqq nginx-extras
@@ -312,65 +314,8 @@ sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
-
-if [ ! -f /etc/nginx/sites-available/nzedb ]; then
-cat << EOF >> /etc/nginx/sites-available/nzedb
-server {
-	listen      80 default;
-	server_name localhost;
-	## redirect http to https ##
-	rewrite        ^ https://$server_name$request_uri? permanent;
-}
-
-server {
-	# Change these settings to match your machine
-	listen   443; ## listen for ipv4; this line is default and implied
-	listen   [::]:443 default_server ipv6only=on; ## listen for ipv6
-	server_name localhost;
-
-	ssl on;
-	ssl_certificate /etc/ssl/nginx/conf/server.crt;
-	ssl_certificate_key /etc/ssl/nginx/conf/server.key;
-
-	location ^~ / {
-		root /var/www/nZEDb/www/;
-		index index.php;
-		try_files $uri $uri/ @rewrites;
-
-		location ~ /(?:\.|lib|pages) {
-			deny all;
-		}
-
-		location ~* \.(?:css|jpe?g|gif|ogg|ogv|png|js|ico|ttf|eot|woff|svg) {
-			expires max;
-			add_header Pragma public;
-			add_header Cache-Control "public, must-revalidate, proxy-revalidate";
-		}
-
-		location ~ \.php$ {
-			try_files $uri =404;
-			fastcgi_split_path_info ^(.+\.php)(/.+)$;
-			# NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
-
-			# With php5-cgi alone:
-			#fastcgi_pass 127.0.0.1:9000;
-			# With php5-fpm:
-			fastcgi_pass unix:/var/run/php5-fpm.sock;
-			#fastcgi_index index.php;
-			include fastcgi_params;
-			#include /etc/nginx/fastcgi_params;
-		}
-
-	}
-
-	location @rewrites {
-		rewrite ^/([^/\.]+)/([^/]+)/([^/]+)/? /index.php?page=$1&id=$2&subpage=$3 last;
-		rewrite ^/([^/\.]+)/([^/]+)/?$ /index.php?page=$1&id=$2 last;
-		rewrite ^/([^/\.]+)/?$ /index.php?page=$1 last;
-	}
-}
-EOF
-fi
+cp config/nzedb_conf.txt /etc/nginx/sites-enabled/nzedb
+cp config/nginx_conf.txt /etc/nginx/nginx.conf
 
 sed -i "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
 if ! grep -q 'fastcgi_index index.php;' "/etc/nginx/fastcgi_params" ; then
