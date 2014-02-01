@@ -7,8 +7,8 @@ fi
 
 clear
 echo -e "\033[1;33mThis installs nZEDb, Nginx Web Server, php, php-fpm, memcached and a database server"
-echo -e "[Mysql SQL Server, Percona SQL Server, Maria SQL Server, TokuDB SQL Server(MariaDB) or PostGreSQL Server]"
-echo -e "and everything that is needed for your Ubuntu install."
+echo "[Mysql SQL Server, Percona SQL Server, Maria SQL Server, TokuDB SQL Server(MariaDB) or PostGreSQL Server]"
+echo "and everything that is needed for your Ubuntu install."
 echo -e "This will also completely remove apparmor and any installation you may have for MySQL, Percona, MariaDB or PostgreSQL\033[0m"
 echo
 echo "This program is free software. You can redistribute it and/or modify it under the terms of the GNU General Public License"
@@ -38,7 +38,7 @@ fi
 
 clear
 echo -e "\033[1;33mNginx needs to have the ip or FQDN, localhost will not work in most cases"
-echo "Enter the ip or FQDN of this server."
+echo -e "Enter the ip or FQDN of this server.\033[0m"
 /sbin/ifconfig | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'
 #curl -s icanhazip.com
 netcat icanhazip.com 80 <<< $'GET / HTTP/1.0\nHost: icanhazip.com\n\n' | tail -n1
@@ -47,8 +47,8 @@ echo
 read IPADDY
 
 clear
-echo "You can install the ffmpeg by using apt-get or use a precompiled static linked binary."
-echo "To install the ffmpeg using apt-get and not the precompiled static binary, type 'y'."
+echo -e "\033[1;33mYou can install the ffmpeg by using apt-get or use a precompiled static linked binary."
+echo -e "To install the ffmpeg using apt-get and not the precompiled static binary, type 'y'.\033[0m"
 echo
 echo "y=YES n=NO"
 read COMPILE
@@ -57,7 +57,7 @@ if [[ $COMPILE != "y" ]]; then
 fi
 
 clear
-echo "Install extra apps that are not necessarily needed for nZEDb operation, such as htop, mytop, etc."
+echo -e "\033[1;33mInstall extra apps that are not necessarily needed for nZEDb operation, such as htop, mytop, etc.\033[0m"
 echo
 echo "y=YES n=NO"
 read EXTRAS
@@ -66,13 +66,13 @@ if [[ $EXTRAS != "y" ]]; then
 fi
 
 clear
-echo "Choose your SQL Server."
+echo -e "\033[1;33mChoose your SQL Server."
 echo
 echo "[1] Mysql Server"
 echo "[2] MariaDB Server"
 echo "[3] TokuDB using MariaDB Server"
 echo "[4] Percona XtraDB Server"
-echo "[5] PostGreSQL Server"
+echo -e "[5] PostGreSQL Server\033[0m"
 echo
 read DATABASE
 if [[ $DATABASE != "1" ]] && [[ $DATABASE != "2" ]] && [[ $DATABASE != "3" ]] && [[ $DATABASE != "4" ]] && [[ $DATABASE != "5" ]]; then
@@ -80,7 +80,7 @@ if [[ $DATABASE != "1" ]] && [[ $DATABASE != "2" ]] && [[ $DATABASE != "3" ]] &&
 fi
 
 clear
-echo "Completey remove MySQL, Percona, MariaDB and PostgreSQL Servers?"
+echo -e "\033[1;33mCompletey remove MySQL, Percona, MariaDB and PostgreSQL Servers?\033[0m"
 echo
 echo "y=YES n=NO"
 read PURGE
@@ -89,7 +89,7 @@ if [[ $PURGE != "y" ]]; then
 fi
 
 clear
-echo "Install Python Modules for Python 2.*?"
+echo -e "\033[1;33mInstall Python Modules for Python 2.*?\033[0m"
 echo
 echo "y=YES n=NO"
 read PYTHON2
@@ -98,28 +98,13 @@ if [[ $PURGE != "y" ]]; then
 fi
 
 clear
-echo "Install Python Modules for Python 3.*?"
+echo -e "\033[1;33mInstall Python Modules for Python 3.*?\033[0m"
 echo
 echo "y=YES n=NO"
 read PYTHON3
 if [[ $PURGE != "y" ]]; then
 	export PYTHON3="n"
 fi
-
-clear
-echo "Updating apt"
-updateapt
-
-echo "Removing Apparmor"
-/etc/init.d/apparmor stop
-/etc/init.d/apparmor teardown
-update-rc.d -f apparmor teardown
-update-rc.d -f apparmor remove
-apt-get purge -qq apparmor
-
-echo "Allow adding apt repos"
-apt-get install -qq software-properties-common
-apt-get install -qq nano
 
 function purgesql {
 	if [[ $PURGE == "y" ]];
@@ -141,42 +126,54 @@ function purgesql {
 
 function updateapt() {
 	apt-get -qq update
-echo "here"
 }
 
 function disablepercona {
-	sed -i -e 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 }
 
 function disablemaria {
-	sed -i -e 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
 }
 
 function disablepostgresql {
-	sed -i -e 's/deb http:\/\/apt.postgresql.org/#deb http:\/\/apt.postgresql.org/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/apt.postgresql.org/#deb http:\/\/apt.postgresql.org/' /etc/apt/sources.list
 }
 
 function enablepercona {
-	sed -i -e 's/#deb http:\/\/repo.percona.com/deb http:\/\/repo.percona.com/' /etc/apt/sources.list
-	sed -i -e 's/#deb-src http:\/\/repo.percona.com/deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/#deb http:\/\/repo.percona.com/deb http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/#deb-src http:\/\/repo.percona.com/deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 }
 
 function enablemaria {
-	sed -i -e 's/#deb http:\/\/ftp.osuosl.org/deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
-	sed -i -e 's/#deb-src http:\/\/ftp.osuosl.org/deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/#deb http:\/\/ftp.osuosl.org/deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/#deb-src http:\/\/ftp.osuosl.org/deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
 }
 
 function enablepostgresql {
-	sed -i -e 's/#deb http:\/\/apt.postgresql.org/deb http:\/\/apt.postgresql.org/' /etc/apt/sources.list
+	sed -i 's/#deb http:\/\/apt.postgresql.org/deb http:\/\/apt.postgresql.org/' /etc/apt/sources.list
 }
 
+clear
+echo "Updating apt"
+updateapt
+
+echo "Removing Apparmor"
+/etc/init.d/apparmor stop
+/etc/init.d/apparmor teardown
+update-rc.d -f apparmor remove
+apt-get purge -qq apparmor apparmor-utils
+
+echo "Allow adding apt repos"
+apt-get install -qq software-properties-common
+apt-get install -qq nano
 
 if [[ $DATABASE == "1" ]];
 then
 	echo "Installing Mysql Server"
-	echo -e "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog"
 	disablepercona
 	disablemaria
 	disablepostgresql
@@ -186,8 +183,8 @@ then
 elif [[ $DATABASE == "2" ]];
 then
 	echo "Installing MariaDB Server"
-	sed -i -e 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	echo "" | tee -a /etc/apt/sources.list
 	if ! grep -q '#MariaDB' "/etc/apt/sources.list" ; then
 			echo "" | tee -a /etc/apt/sources.list
@@ -195,7 +192,7 @@ then
 			echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 	fi
-	echo -e "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog\033[0m"
 	disablepercona
 	disablepostgresql
 	enablemaria
@@ -205,8 +202,8 @@ then
 elif [[ $DATABASE == "3" ]];
 then
 	echo "Installing TokuDB Engine with MariaDB Server"
-	sed -i -e 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	echo "" | tee -a /etc/apt/sources.list
 	if ! grep -q '#MariaDB' "/etc/apt/sources.list" ; then
 		echo "" | tee -a /etc/apt/sources.list
@@ -221,7 +218,7 @@ then
 		echo "Pin: origin ftp.osuosl.org" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 		echo "Pin-Priority: 1000" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 	fi
-	echo -e "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog\033[0m"
 	disablepercona
 	disablepostgresql
 	enablemaria
@@ -229,23 +226,23 @@ then
 	updateapt
 	purgesql
 	apt-get install -qq mariadb-tokudb-engine-5.5 mariadb-client
-	sed -i -e 's/#plugin-load=ha_tokudb.so/plugin-load=ha_tokudb.so/' /etc/mysql/conf.d/tokudb.cnf
-	sed -i -e 's/default_storage_engine.*$/default_storage_engine  = tokudb/' /etc/mysql/my.cnf
+	sed -i 's/#plugin-load=ha_tokudb.so/plugin-load=ha_tokudb.so/' /etc/mysql/conf.d/tokudb.cnf
+	sed -i 's/default_storage_engine.*$/default_storage_engine  = tokudb/' /etc/mysql/my.cnf
 	service mysql restart
 elif [[ $DATABASE == "4" ]];
 then
 	echo "Installing Percona XtraDB Server"
 	gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
 	gpg -a --export CD2EFD2A | apt-key add -
-	sed -i -e 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
 	if ! grep -q '#Percona' "/etc/apt/sources.list" ; then
 		echo "" | tee -a /etc/apt/sources.list
 		echo "#Percona" | tee -a /etc/apt/sources.list
 		echo "deb http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 	fi
-	echo -e "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog\033[0m"
 	disablemaria
 	disablepostgresql
 	enablepercona
@@ -253,29 +250,35 @@ then
 	purgesql
 	mkdir -p /etc/mysql
 	wget --no-check-certificate https://dl.dropboxusercontent.com/u/8760087/initial_my.cnf -O /etc/mysql/my.cnf
+	export DEBIAN_FRONTEND=noninteractive
+	debconf-set-selections <<< 'percona-server-server-5.6 mysql-server/root_password password rootpass'
+	debconf-set-selections <<< 'percona-server-server-5.6 mysql-server/root_password_again password rootpass'
 	apt-get install -qq percona-server-client-5.6 percona-server-server-5.6
+	export DEBIAN_FRONTEND=interactive
+	exit
 	clear
+
 	echo -e "\033[1;33m Adding Percona functions, to not install, use invalid password\n\n"
-	echo "mysql -p -e \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\""
-	mysql -p -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
-	echo "mysql -p -e \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\""
-	mysql -p -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
-	echo -e "mysql -p -e \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
-	mysql -p -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+	echo "mysql -p \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\""
+	mysql -p "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+	echo "mysql -p \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\""
+	mysql -p "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+	echo "mysql -p \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
+	mysql -p "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
 elif [[ $DATABASE == "5" ]];
 then
 	echo "Installing PostGreSQL Server"
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-	sed -i -e 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
-	sed -i -e 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
-	sed -i -e 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
+	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
+	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	if ! grep -q '#PostgreSQL' "/etc/apt/sources.list" ; then
 		echo "" | tee -a /etc/apt/sources.list
 		echo "#PostgreSQL" | tee -a /etc/apt/sources.list
 		echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" | tee -a /etc/apt/sources.list
 	fi
-	echo -e "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog\033[0m"
 	disablepercona
 	disablemaria
 	enablepostgresql
@@ -301,20 +304,20 @@ else
 fi
 
 echo "Edit config files"
-sed -i -e 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/cli/php.ini
-sed -i -e 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/fpm/php.ini
-sed -i -e 's/memory_limit.*$/memory_limit = -1/' /etc/php5/cli/php.ini
-sed -i -e 's/memory_limit.*$/memory_limit = -1/' /etc/php5/fpm/php.ini
-sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/cli/php.ini
-sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/fpm/php.ini
-sed -i -e 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/fpm/php.ini
-sed -i -e 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/cli/php.ini
-sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/fpm/php.ini
-sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/cli/php.ini
-sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/fpm/php.ini
-sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/cli/php.ini
-sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/fpm/php.ini
-sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/php.ini
+sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/cli/php.ini
+sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/fpm/php.ini
+sed -i 's/memory_limit.*$/memory_limit = -1/' /etc/php5/cli/php.ini
+sed -i 's/memory_limit.*$/memory_limit = -1/' /etc/php5/fpm/php.ini
+sed -i 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/cli/php.ini
+sed -i 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/fpm/php.ini
+sed -i 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/fpm/php.ini
+sed -i 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/cli/php.ini
+sed -i 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/fpm/php.ini
+sed -i 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/cli/php.ini
+sed -i 's/display_errors.*$/display_errors = On/' /etc/php5/fpm/php.ini
+sed -i 's/display_errors.*$/display_errors = On/' /etc/php5/cli/php.ini
+sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/fpm/php.ini
+sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/php.ini
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
@@ -378,7 +381,7 @@ server {
 EOF
 fi
 
-sed -i -e "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
+sed -i "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
 if ! grep -q 'fastcgi_index index.php;' "/etc/nginx/fastcgi_params" ; then
 	echo "fastcgi_index index.php;" | tee -a /etc/nginx/fastcgi_params
 fi
