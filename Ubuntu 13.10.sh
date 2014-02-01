@@ -109,22 +109,23 @@ fi
 
 function purgesql {
 	if [[ $purgesql == "y" ]]; then
-		echo "Purging postgresql"
+		echo -e "\033[1;33mPurging postgresql\033[0m"
 		apt-get purge -yqq postgresql*
-		echo "Purging mysql"
+		echo -e "\033[1;33mPurging mysql\033[0m"
 		apt-get purge -yqq mysql*
-		echo "Purging percona"
+		echo -e "\033[1;33mPurging percona\033[0m"
 		apt-get purge -yqq percona*
-		echo "Purging mariadb"
+		echo -e "\033[1;33mPurging mariadb\033[0m"
 		apt-get purge -yqq mariadb*
-		echo "Purging tokudb"
+		echo -e "\033[1;33mPurging tokudb\033[0m"
 		apt-get -yqq purge tokudb*
-		echo "Running Autoremove"
+		echo -e "\033[1;33mRunning Autoremove\033[0m"
 		apt-get -yqq autoremove
 	fi
 }
 
 function updateapt() {
+	echo -e "\033[1;33mUpdating Apt Catalog\033[0m"
 	apt-get -yqq update
 }
 
@@ -157,16 +158,15 @@ function enablepostgresql {
 }
 
 clear
-echo "Updating Apt Catalog"
 updateapt
 
-echo "Removing Apparmor"
+echo -e "\033[1;33mRemoving Apparmor\033[0m"
 /etc/init.d/apparmor stop
 /etc/init.d/apparmor teardown
 update-rc.d -f apparmor remove
-apt-get purge -yqq apparmor apparmor-utils
+apt-get purge -yqq apparmor* apparmor-utils
 
-echo "Allow adding apt repos"
+echo -e "\033[1;33mAllow adding PPA's\033[0m"
 apt-get install -yqq software-properties-common
 apt-get install -yqq nano
 
@@ -179,7 +179,7 @@ sed -i -e 's/^# set tabsize 8/set tabsize 4/' $USER_HOME/.nanorc
 sed -i -e 's/^# set historylog/set historylog/' $USER_HOME/.nanorc
 ln -s $USER_HOME/.nanorc /root/
 
-echo "Configuring ssh"
+echo -e "\033[1;33mConfiguring ssh\033[0m"
 sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
 sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
 sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
@@ -192,8 +192,7 @@ service ssh restart
 # set to non interactive
 export DEBIAN_FRONTEND=noninteractive
 if [[ $DATABASE == "1" ]]; then
-	echo "Installing Mysql Server"
-	echo "Updating Apt Catalog"
+	echo -e "\033[1;33mInstalling Mysql Server\033[0m"
 	disablepercona
 	disablemaria
 	disablepostgresql
@@ -201,7 +200,7 @@ if [[ $DATABASE == "1" ]]; then
 	purgesql
 	apt-get install -yqq mysql-client mysql-server
 elif [[ $DATABASE == "2" ]]; then
-	echo "Installing MariaDB Server"
+	echo -e "\033[1;33mInstalling MariaDB Server\033[0m"
 	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
 	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	echo "" | tee -a /etc/apt/sources.list
@@ -211,7 +210,6 @@ elif [[ $DATABASE == "2" ]]; then
 			echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog"
 	disablepercona
 	disablepostgresql
 	enablemaria
@@ -219,7 +217,7 @@ elif [[ $DATABASE == "2" ]]; then
 	purgesql
 	apt-get install -yqq mariadb-server mariadb-client
 elif [[ $DATABASE == "3" ]]; then
-	echo "Installing TokuDB Engine with MariaDB Server"
+	echo -e "\033[1;33mInstalling TokuDB Engine with MariaDB Server\033[0m"
 	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
 	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
 	echo "" | tee -a /etc/apt/sources.list
@@ -236,7 +234,6 @@ elif [[ $DATABASE == "3" ]]; then
 		echo "Pin: origin ftp.osuosl.org" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 		echo "Pin-Priority: 1000" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 	fi
-	echo "Updating Apt Catalog"
 	disablepercona
 	disablepostgresql
 	enablemaria
@@ -248,7 +245,7 @@ elif [[ $DATABASE == "3" ]]; then
 	sed -i 's/default_storage_engine.*$/default_storage_engine  = tokudb/' /etc/mysql/my.cnf
 	service mysql restart
 elif [[ $DATABASE == "4" ]]; then
-	echo "Installing Percona XtraDB Server"
+	echo -e "\033[1;33mInstalling Percona XtraDB Server\033[0m"
 	gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
 	gpg -a --export CD2EFD2A | apt-key add -
 	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
@@ -259,7 +256,6 @@ elif [[ $DATABASE == "4" ]]; then
 		echo "deb http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog"
 	disablemaria
 	disablepostgresql
 	enablepercona
@@ -269,7 +265,7 @@ elif [[ $DATABASE == "4" ]]; then
 	wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/my_cnf.txt -O /etc/mysql/my.cnf
 	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
 elif [[ $DATABASE == "5" ]]; then
-	echo "Installing PostGreSQL Server"
+	echo -e "\033[1;33mInstalling PostGreSQL Server\033[0m"
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
 	sed -i 's/deb-src http:\/\/ftp.osuosl.org/#deb-src http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
@@ -280,7 +276,6 @@ elif [[ $DATABASE == "5" ]]; then
 		echo "#PostgreSQL" | tee -a /etc/apt/sources.list
 		echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog"
 	disablepercona
 	disablemaria
 	enablepostgresql
@@ -309,7 +304,7 @@ else
 	apt-get install -yqq php5-mysqlnd
 fi
 
-echo -e "\033[1;33mEdit config files\033[0m"
+echo -e "\033[1;33mEditing PHP config files\033[0m"
 sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/cli/php.ini
 sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/fpm/php.ini
 sed -i 's/memory_limit.*$/memory_limit = -1/' /etc/php5/cli/php.ini
@@ -341,22 +336,26 @@ fi
 unlink /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/nzedb /etc/nginx/sites-enabled/nzedb
 
-echo "Create Self Signed Certificate"
+echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
 
 #ssl
 mkdir -p /etc/ssl/nginx/conf
 cd /etc/ssl/nginx/conf
+echo -e "\033[1;33mEnter a Secure password\033[0m"
 openssl genrsa -des3 -out server.key 4096
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
 openssl req -new -key server.key -out server.csr
 cp server.key server.key.org
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
 openssl rsa -in server.key.org -out server.key
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
 openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
 
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
 
-echo "Installing ffmpeg x264..."
+echo -e "\033[1;33mInstalling ffmpeg x264...\033[0m"
 
 if [[ $COMPILE == "y" ]]; then
 	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
@@ -385,7 +384,7 @@ else
 	rm $(basename "`find . -name *.bz2`")
 fi
 
-echo "Installing Mediainfo"
+echo -e "\033[1;33mInstalling Mediainfo\033[0m"
 
 wget -c http://mediaarea.net/download/binary/libzen0/0.4.29/libzen0_0.4.29-1_amd64.xUbuntu_13.04.deb
 wget -c http://mediaarea.net/download/binary/libmediainfo0/0.7.67/libmediainfo0_0.7.67-1_amd64.xUbuntu_13.10.deb
@@ -421,7 +420,7 @@ service php5-fpm start
 service nginx restart
 
 if [[ $PYTHONTWO == "y" ]]; then
-	echo "Installing Python 2 modules to your user's home folder, they are not installed globally"
+	echo -e "\033[1;33mInstalling Python 2 modules to your user's home folder, they are not installed globally\033[0m"
 	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
 	if [[ $DATABASE == "5" ]]; then
 		pip install --user psycopg2
@@ -432,14 +431,15 @@ if [[ $PYTHONTWO == "y" ]]; then
 fi
 
 if [[ $PYTHONTHREE == "y" ]]; then
-	echo "Installing Python 3 modules to your user's home folder, they are not installed globally"
+	echo -e "\033[1;33mInstalling Python 3 modules to your user's home folder, they are not installed globally\033[0m"
 	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties
 	if [[ $DATABASE == "5" ]]; then
 		pip3 install --user psycopg2
 	else
 		pip3 install --user cymysql
 	fi
-	pip3 install --user pynntp
+	# does not work in python3
+	#pip3 install --user pynntp
 fi
 
 # chown your users folder
@@ -455,7 +455,7 @@ if [[ $DATABASE != "5" ]]; then
 	mysql -uroot -p -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
 	echo -e "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
 	mysql -uroot -p -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
-	echo -e "\033[1;33mMySQL password for root is blank."
+	echo -e "\033[1;33mMySQL password for root is blank.\033[0m"
 	mysql_secure_installation
 fi
 
