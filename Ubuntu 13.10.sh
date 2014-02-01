@@ -106,7 +106,12 @@ clear
 echo "Updating apt"
 updateapt
 echo "Removing Apparmor"
+/etc/init.d/apparmor stop
+/etc/init.d/apparmor teardown
+update-rc.d -f apparmor teardown
+update-rc.d -f apparmor remove
 apt-get purge -qq apparmor
+
 echo "Allow adding apt repos"
 apt-get install -qq software-properties-common
 apt-get install -qq nano
@@ -231,8 +236,8 @@ then
 	if ! grep -q '#Percona' "/etc/apt/sources.list" ; then
 		echo "" | tee -a /etc/apt/sources.list
 		echo "#Percona" | tee -a /etc/apt/sources.list
-		echo "deb http://repo.percona.com/apt saucy main" | tee -a /etc/apt/sources.list
-		echo "deb-src http://repo.percona.com/apt saucy main" | tee -a /etc/apt/sources.list
+		echo "deb http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
+		echo "deb-src http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 	fi
 	echo -e "Updating Apt Catalog\033[0m"
 	disablemaria
@@ -281,7 +286,7 @@ chmod 755 /var/log/nginx
 
 echo -e "\033[1;33mInstalling PHP, PHP-FPM"
 apt-get install -qq php5-fpm
-apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php-apc
+apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
 if [[ $DATABASE == "5" ]];
 then
 	apt-get install -qq php5-pgsql
@@ -298,6 +303,12 @@ sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/
 sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/fpm/php.ini
 sed -i -e 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/fpm/php.ini
 sed -i -e 's/[;?]cgi.fix_pathinfo.*$/cgi.fix_pathinfo = 0/' /etc/php5/cli/php.ini
+sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/fpm/php.ini
+sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/cli/php.ini
+sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/fpm/php.ini
+sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/cli/php.ini
+sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/fpm/php.ini
+sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/php.ini
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
@@ -424,9 +435,10 @@ else
 fi
 
 echo "Installing Mediainfo"
-wget http://mediaarea.net/download/binary/libzen0/0.4.29/libzen0_0.4.29-1_amd64.xUbuntu_13.04.deb
-wget http://mediaarea.net/download/binary/libmediainfo0/0.7.64/libmediainfo0_0.7.64-1_amd64.xUbuntu_13.04.deb
-wget http://mediaarea.net/download/binary/mediainfo/0.7.64/mediainfo_0.7.64-1_amd64.Debian_7.0.deb
+
+wget -c http://mediaarea.net/download/binary/libzen0/0.4.29/libzen0_0.4.29-1_amd64.xUbuntu_13.04.deb
+wget -c http://mediaarea.net/download/binary/libmediainfo0/0.7.67/libmediainfo0_0.7.67-1_amd64.xUbuntu_13.10.deb
+wget -c http://mediaarea.net/download/binary/mediainfo/0.7.67/mediainfo_0.7.67-1_amd64.Debian_7.0.deb
 dpkg -i libzen0*
 dpkg -i libmediainfo0*
 dpkg -i mediainfo*
@@ -463,7 +475,7 @@ fi
 
 
 if [[ $EXTRAS == "y" ]]; then
-	apt-get install -qq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full tmux make screen git
+	apt-get install -qq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 fi
@@ -473,7 +485,7 @@ apt-get autoremove
 
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
 
-chmod -R 777 /var/www/nZEDb/www/lib/smarty/templates_c
+chmod -R 777 /var/www/nZEDb/smarty/templates_c
 chmod -R 777 /var/www/nZEDb/www/covers
 chmod -R 777 /var/www/nZEDb/nzbfiles
 chmod 777 /var/www/nZEDb/www

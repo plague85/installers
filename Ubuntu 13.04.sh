@@ -104,7 +104,12 @@ fi
 
 clear
 echo "Removing Apparmor"
+/etc/init.d/apparmor stop
+/etc/init.d/apparmor teardown
+update-rc.d -f apparmor teardown
+update-rc.d -f apparmor remove
 apt-get purge -qq apparmor
+
 echo "Allow adding apt repos"
 apt-get install software-properties-common
 
@@ -271,7 +276,7 @@ chmod 755 /var/log/nginx
 
 echo -e "\033[1;33mInstalling PHP, PHP-FPM"
 apt-get install -qq php5-fpm
-apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php-apc
+apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
 if [[ $DATABASE == "5" ]];
 then
 	apt-get install -qq php5-pgsql
@@ -286,6 +291,12 @@ sed -i -e 's/memory_limit.*$/memory_limit = -1/' /etc/php5/cli/php.ini
 sed -i -e 's/memory_limit.*$/memory_limit = -1/' /etc/php5/fpm/php.ini
 sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/cli/php.ini
 sed -i -e 's/[;?]date.timezone.*$/date.timezone = America\/New_York/' /etc/php5/fpm/php.ini
+sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/fpm/php.ini
+sed -i -e 's/short_open_tag.*$/short_open_tag = Off/' /etc/php5/cli/php.ini
+sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/fpm/php.ini
+sed -i -e 's/display_errors.*$/display_errors = On/' /etc/php5/cli/php.ini
+sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/fpm/php.ini
+sed -i -e 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/php.ini
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
