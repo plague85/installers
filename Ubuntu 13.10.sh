@@ -2,7 +2,7 @@
 
 if [[ $EUID -ne 0 ]]; then
 	echo "You must be root to do this." 1>&2
-	exit 100
+	exit
 fi
 
 clear
@@ -253,15 +253,6 @@ then
 	mkdir -p /etc/mysql
 	wget --no-check-certificate https://dl.dropboxusercontent.com/u/8760087/initial_my.cnf -O /etc/mysql/my.cnf
 	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
-	clear
-
-	echo -e "\033[1;33mAdding Percona functions, to not install, use invalid password\n\n\033[0m"
-	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\"\033[0m"
-	mysql -uroot -p -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
-	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\"\033[0m"
-	mysql -uroot -p -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
-	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
-	mysql -uroot -p -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
 elif [[ $DATABASE == "5" ]];
 then
 	echo "Installing PostGreSQL Server"
@@ -406,21 +397,15 @@ service nginx restart
 
 echo "Installing ffmpeg x264..."
 
-if [[ $COMPILE != "y" ]];
+if [[ $COMPILE == "y" ]];
 then
 	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
-	#this will need to be updated
-	wget http://johnvansickle.com/ffmpeg/builds/ffmpeg-linux64-20130918.tar.bz2
-	tar xfv ffmpeg-linux64-*
-	sudo mv ffmpeg-linux64-20130918/ffmpeg /usr/bin/
-	sudo mv ffmpeg-linux64-20130918/ffprobe /usr/bin/
-	rm -R ffmpeg-linux64*
 else
 	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
 	# Use static build of ffmpeg
 	try=`date +"%Y%m%d"`
 	for i in {1..30} ; do
-		wget http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-$try-64bit-static.tar.bz2
+		wget -n http://johnvansickle.com/ffmpeg/builds/ffmpeg-git-$try-64bit-static.tar.bz2
 		if [ $? -gt 0 ]; then
 			try=`date -d "- $i day" +"%Y%m%d"`
 				$((i ++ ))
@@ -452,35 +437,8 @@ rm libzen0*
 rm libmediainfo0*
 rm mediainfo*
 
-if [[ $PYTHON2 != "y" ]];
-then
-	Echo "Installing Python 2 modules"
-	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
-	python -m easy_install
-	if [[ $DATABASE == "5" ]];
-	then
-		easy_install psycopg2
-	else
-		if [ which pip 2>/dev/null ]; then pip install cymysql; fi
-	fi
-fi
-if [[ $PYTHON3 != "y" ]];
-then
-	Echo "Installing Python 2 modules"
-	apt-get install -yqq python-setuptools python3-dev python-software-properties
-	python -m easy_install
-	elif [[ $DATABASE == "5" ]];
-	then
-		easy_install3 psycopg2
-	else
-		if [ which pip-3.2 2>/dev/null ]; then pip-3.2 cymysql; fi
-		if [ which pip-3.3 2>/dev/null ]; then pip-3.3 cymysql; fi
-	fi
-fi
-
-
-
-if [[ $EXTRAS == "y" ]]; then
+if [[ $EXTRAS === "y" ]]; then
+	export DEBIAN_FRONTEND=interactive
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
@@ -501,11 +459,76 @@ chown -R www-data:www-data /var/www/
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
-mysql_secure_installation
+exit
+
+if [[ $PYTHON2 === "y" ]];
+then
+	Echo "Installing Python 2 modules"
+	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties python-virtualenv
+	sudo su $SUDO_USER
+	virtualenv --no-site-packages /var/www/nZEDb/py2virtenv
+	cd /var/www/nZEDb/py2virtenv
+	if [[ $DATABASE == "5" ]];
+	then
+		pip install psycopg2
+	else
+		pip install cymysql
+	fi
+	pip install pynntp
+fi
+if [[ $PYTHON3 === "y" ]];
+then
+	Echo "Installing Python 3 modules"
+	sudo su
+	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties python-virtualenv
+	sudo su $SUDO_USER
+	virtualenv --no-site-packages /var/www/nZEDb/py3virtenv
+	cd /var/www/nZEDb/py3virtenv
+	elif [[ $DATABASE == "5" ]];
+	then
+		if [ which pip-3.2 2>/dev/null ];
+		then
+			pip-3.2 install psycopg2
+			pip-3.2 install pynntp
+	fi
+		if [ which pip-3.3 2>/dev/null ];
+		then
+			pip-3.3 install psycopg2
+			pip-3.3 install pynntp
+		fi
+	else
+		if [ which pip-3.2 2>/dev/null ];
+		then
+			pip-3.2 install cymysql
+			pip-3.2 install pynntp
+		fi
+		if [ which pip-3.3 2>/dev/null ];
+		then
+			pip-3.3 install cymysql
+			pip-3.3 install pynntp
+		fi
+	fi
+fi
+
+if [[ $DATABASE != "5" ]];
+then
+	clear
+	echo -e "\033[1;33mMySQL password for root is blank."
+	echo -e "Adding Percona functions, to not install, use any password\n\n"
+	echo -e "mysql -uroot -p -e \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+	echo -e "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+	echo -e "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+	echo -e "\033[1;33mMySQL password for root is blank."
+	mysql_secure_installation
+fi
+
 clear
 echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
-echo "Go to http://$IPADDY to finish nZEDb install."
-echo "For questions and problems log on to #nZEDb on Synirc"
+echo "Go to https://$IPADDY to finish nZEDb install."
+echo "For questions and problems log on to #nZEDb on irc.Synirc.net"
 echo -e "\n\n\033[0m"
-exit 100
+exit
