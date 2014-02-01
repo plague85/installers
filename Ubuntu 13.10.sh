@@ -176,6 +176,8 @@ sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
 sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
 touch /root/.Xauthority
 touch /home/$SUDO_USER/.Xauthority
+mkdir -p /home/$SUDO_USER/.local/share/
+mkdir -p /root/.local/share/
 service ssh restart
 
 # set to non interactive
@@ -255,7 +257,7 @@ elif [[ $DATABASE == "4" ]]; then
 	updateapt
 	purgesql
 	mkdir -p /etc/mysql
-	cp config/my_cnf.txt /etc/mysql/my.cnf
+	wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/my_cnf.txt /etc/mysql/my.cnf
 	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
 elif [[ $DATABASE == "5" ]]; then
 	echo "Installing PostGreSQL Server"
@@ -316,9 +318,8 @@ sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
-cp config/nzedb_conf.txt /etc/nginx/sites-enabled/nzedb.conf
-mv /etc/nginx/sites-enabled/nzedb.conf /etc/nginx/sites-enabled/nzedb
-#cp config/nginx_conf.txt /etc/nginx/nginx.conf
+wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nzedb_conf.txt /etc/nginx/sites-enabled/nzedb
+wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nginx_conf.txt /etc/nginx/nginx.conf
 
 sed -i "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
 if ! grep -q 'fastcgi_index index.php;' "/etc/nginx/fastcgi_params" ; then
