@@ -38,7 +38,8 @@ fi
 
 clear
 echo -e "\033[1;33mNginx needs to have the ip or FQDN, localhost will not work in most cases"
-echo -e "Enter the ip or FQDN of this server.\033[0m"
+echo "Enter the ip or FQDN of this server."
+echo -e "Detected IP's:\n\033[0m"
 /sbin/ifconfig | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'
 #curl -s icanhazip.com
 netcat icanhazip.com 80 <<< $'GET / HTTP/1.0\nHost: icanhazip.com\n\n' | tail -n1
@@ -110,22 +111,23 @@ function purgesql {
 	if [[ $PURGE == "y" ]];
 	then
 		echo "Purging postgresql"
-		apt-get purge -qq postgresql*
+		apt-get purge -yqq postgresql*
 		echo "Purging mysql"
-		apt-get purge -qq mysql*
+		apt-get purge -yqq mysql*
 		echo "Purging percona"
-		apt-get purge -qq percona*
+		apt-get purge -yqq percona*
 		echo "Purging mariadb"
-		apt-get purge -qq mariadb*
+		apt-get purge -yqq mariadb*
 		echo "Purging tokudb"
-		apt-get -qq purge tokudb*
+		apt-get -yqq purge tokudb*
 		echo "Running Autoremove"
-		apt-get -qq autoremove
+		apt-get -yqq autoremove
 	fi
 }
 
 function updateapt() {
-	apt-get -qq update
+	export DEBIAN_FRONTEND=noninteractive
+	apt-get -yqq update
 }
 
 function disablepercona {
@@ -157,18 +159,18 @@ function enablepostgresql {
 }
 
 clear
-echo "Updating apt"
+echo "Updating Apt Catalog"
 updateapt
 
 echo "Removing Apparmor"
 /etc/init.d/apparmor stop
 /etc/init.d/apparmor teardown
 update-rc.d -f apparmor remove
-apt-get purge -qq apparmor apparmor-utils
+apt-get purge -yqq apparmor apparmor-utils
 
 echo "Allow adding apt repos"
-apt-get install -qq software-properties-common
-apt-get install -qq nano
+apt-get install -yqq software-properties-common
+apt-get install -yqq nano
 
 if [[ $DATABASE == "1" ]];
 then
@@ -179,7 +181,7 @@ then
 	disablepostgresql
 	updateapt
 	purgesql
-	apt-get install -qq mysql-client mysql-server
+	apt-get install -yqq mysql-client mysql-server
 elif [[ $DATABASE == "2" ]];
 then
 	echo "Installing MariaDB Server"
@@ -192,13 +194,13 @@ then
 			echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu saucy main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog"
 	disablepercona
 	disablepostgresql
 	enablemaria
 	updateapt
 	purgesql
-	apt-get install -qq mariadb-server mariadb-client
+	apt-get install -yqq mariadb-server mariadb-client
 elif [[ $DATABASE == "3" ]];
 then
 	echo "Installing TokuDB Engine with MariaDB Server"
@@ -218,14 +220,14 @@ then
 		echo "Pin: origin ftp.osuosl.org" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 		echo "Pin-Priority: 1000" | sudo tee -a /etc/apt/preferences.d/00mariadb.pref
 	fi
-	echo "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog"
 	disablepercona
 	disablepostgresql
 	enablemaria
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
 	updateapt
 	purgesql
-	apt-get install -qq mariadb-tokudb-engine-5.5 mariadb-client
+	apt-get install -yqq mariadb-tokudb-engine-5.5 mariadb-client
 	sed -i 's/#plugin-load=ha_tokudb.so/plugin-load=ha_tokudb.so/' /etc/mysql/conf.d/tokudb.cnf
 	sed -i 's/default_storage_engine.*$/default_storage_engine  = tokudb/' /etc/mysql/my.cnf
 	service mysql restart
@@ -242,7 +244,7 @@ then
 		echo "deb http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 		echo "deb-src http://repo.percona.com/apt quantal main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog"
 	disablemaria
 	disablepostgresql
 	enablepercona
@@ -250,21 +252,16 @@ then
 	purgesql
 	mkdir -p /etc/mysql
 	wget --no-check-certificate https://dl.dropboxusercontent.com/u/8760087/initial_my.cnf -O /etc/mysql/my.cnf
-	export DEBIAN_FRONTEND=noninteractive
-	debconf-set-selections <<< 'percona-server-server-5.6 mysql-server/root_password password rootpass'
-	debconf-set-selections <<< 'percona-server-server-5.6 mysql-server/root_password_again password rootpass'
-	apt-get install -qq percona-server-client-5.6 percona-server-server-5.6
-	export DEBIAN_FRONTEND=interactive
-	exit
+	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
 	clear
 
-	echo -e "\033[1;33m Adding Percona functions, to not install, use invalid password\n\n"
-	echo "mysql -p \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\""
-	mysql -p "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
-	echo "mysql -p \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\""
-	mysql -p "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
-	echo "mysql -p \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
-	mysql -p "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+	echo -e "\033[1;33mAdding Percona functions, to not install, use invalid password\n\n\033[0m"
+	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+	echo "\033[1;33mmysql -uroot -p -e \"CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'\"\033[0m"
+	mysql -uroot -p -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
 elif [[ $DATABASE == "5" ]];
 then
 	echo "Installing PostGreSQL Server"
@@ -278,32 +275,32 @@ then
 		echo "#PostgreSQL" | tee -a /etc/apt/sources.list
 		echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" | tee -a /etc/apt/sources.list
 	fi
-	echo "Updating Apt Catalog\033[0m"
+	echo "Updating Apt Catalog"
 	disablepercona
 	disablemaria
 	enablepostgresql
 	updateapt
 	purgesql
-	apt-get -qq install postgresql postgresql-server-dev-all
+	apt-get -yqq install postgresql postgresql-server-dev-all
 fi
 
 #Installing Prerequirements
-echo -e "\033[1;33mInstalling Nginx (engineX)"
-apt-get install -qq nginx
+echo -e "\033[1;33mInstalling Nginx (engineX)\033[0m"
+apt-get install -yqq nginx
 mkdir -p /var/log/nginx
 chmod 755 /var/log/nginx
 
-echo -e "\033[1;33mInstalling PHP, PHP-FPM"
-apt-get install -qq php5-fpm
-apt-get install -qq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
+echo -e "\033[1;33mInstalling PHP, PHP-FPM\033[0m"
+apt-get install -yqq php5-fpm
+apt-get install -yqq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
 if [[ $DATABASE == "5" ]];
 then
-	apt-get install -qq php5-pgsql
+	apt-get install -yqq php5-pgsql
 else
-	apt-get install -qq php5-mysqlnd
+	apt-get install -yqq php5-mysqlnd
 fi
 
-echo "Edit config files"
+echo -e "\033[1;33mEdit config files\033[0m"
 sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/cli/php.ini
 sed -i 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/fpm/php.ini
 sed -i 's/memory_limit.*$/memory_limit = -1/' /etc/php5/cli/php.ini
@@ -411,7 +408,7 @@ echo "Installing ffmpeg x264..."
 
 if [[ $COMPILE != "y" ]];
 then
-	apt-get install -qq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
+	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
 	#this will need to be updated
 	wget http://johnvansickle.com/ffmpeg/builds/ffmpeg-linux64-20130918.tar.bz2
 	tar xfv ffmpeg-linux64-*
@@ -419,7 +416,7 @@ then
 	sudo mv ffmpeg-linux64-20130918/ffprobe /usr/bin/
 	rm -R ffmpeg-linux64*
 else
-	apt-get install -qq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
+	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
 	# Use static build of ffmpeg
 	try=`date +"%Y%m%d"`
 	for i in {1..30} ; do
@@ -458,7 +455,7 @@ rm mediainfo*
 if [[ $PYTHON2 != "y" ]];
 then
 	Echo "Installing Python 2 modules"
-	apt-get install -qq python-setuptools python-pip python-dev python-software-properties
+	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
 	python -m easy_install
 	if [[ $DATABASE == "5" ]];
 	then
@@ -470,7 +467,7 @@ fi
 if [[ $PYTHON3 != "y" ]];
 then
 	Echo "Installing Python 2 modules"
-	apt-get install -qq python-setuptools python3-dev python-software-properties
+	apt-get install -yqq python-setuptools python3-dev python-software-properties
 	python -m easy_install
 	elif [[ $DATABASE == "5" ]];
 	then
@@ -484,7 +481,7 @@ fi
 
 
 if [[ $EXTRAS == "y" ]]; then
-	apt-get install -qq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
+	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 fi
@@ -504,7 +501,7 @@ chown -R www-data:www-data /var/www/
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
-
+mysql_secure_installation
 clear
 echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
