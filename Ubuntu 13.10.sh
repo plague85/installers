@@ -125,7 +125,6 @@ function purgesql {
 }
 
 function updateapt() {
-	export DEBIAN_FRONTEND=noninteractive
 	apt-get -yqq update
 }
 
@@ -170,6 +169,18 @@ apt-get purge -yqq apparmor apparmor-utils
 echo "Allow adding apt repos"
 apt-get install -yqq software-properties-common
 apt-get install -yqq nano
+
+echo "Configuring ssh"
+sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
+sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
+sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
+
+if ! grep -q 'ForwardX11Trusted' "/etc/ssh/sshd_config" ; then
+        echo "ForwardX11Trusted yes" | tee -a /etc/ssh/sshd_config
+else
+        sed -i -e 's/ForwardX11Trusted.*$/ForwardX11Trusted yes/' /etc/ssh/sshd_config
+fi
+service ssh restart
 
 if [[ $DATABASE == "1" ]]; then
 	echo "Installing Mysql Server"
@@ -430,7 +441,7 @@ rm libmediainfo0*
 rm mediainfo*
 
 if [[ $EXTRAS == "y" ]]; then
-	export DEBIAN_FRONTEND=interactive
+	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
@@ -453,7 +464,7 @@ service php5-fpm start
 service nginx restart
 
 if [[ $PYTHONTWO == "y" ]]; then
-	Echo "Installing Python 2 modules to your user's home folder, they are not installed globally"
+	echo "Installing Python 2 modules to your user's home folder, they are not installed globally"
 	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
 	if [[ $DATABASE == "5" ]]; then
 		pip install --user psycopg2
@@ -466,7 +477,7 @@ if [[ $PYTHONTWO == "y" ]]; then
 fi
 
 if [[ $PYTHONTHREE == "y" ]]; then
-	Echo "Installing Python 3 modules to your user's home folder, they are not installed globally"
+	echo "Installing Python 3 modules to your user's home folder, they are not installed globally"
 	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties
 	if [[ $DATABASE == "5" ]]; then
 		pip3 install --user psycopg2
