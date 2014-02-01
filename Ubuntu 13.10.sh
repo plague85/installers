@@ -170,13 +170,22 @@ echo "Allow adding apt repos"
 apt-get install -yqq software-properties-common
 apt-get install -yqq nano
 
+#get user home folder
+export USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+
+cp /etc/nanorc $USER_HOME/.nanorc
+sed -i -e 's/^# include/include/' $USER_HOME/.nanorc
+sed -i -e 's/^# set tabsize 8/set tabsize 4/' $USER_HOME/.nanorc
+sed -i -e 's/^# set historylog/set historylog/' $USER_HOME/.nanorc
+ln -s $USER_HOME/.nanorc /root/
+
 echo "Configuring ssh"
 sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
 sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
 sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
 touch /root/.Xauthority
-touch /home/$SUDO_USER/.Xauthority
-mkdir -p /home/$SUDO_USER/.local/share/
+touch $USER_HOME/.Xauthority
+mkdir -p $USER_HOME/.local/share/
 mkdir -p /root/.local/share/
 service ssh restart
 
@@ -318,7 +327,7 @@ sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
-wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nzedb_conf.txt -O /etc/nginx/sites-enabled/nzedb
+wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nzedb_conf.txt -O /etc/nginx/sites-available/nzedb
 wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nginx_conf.txt -O /etc/nginx/nginx.conf
 
 sed -i "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
@@ -420,8 +429,7 @@ if [[ $PYTHONTWO == "y" ]]; then
 		pip install --user cymysql
 	fi
 	pip install --user pynntp
-	USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
-	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
+	chown -R $SUDO_USER:$SUDO_USER $USER_HOME/.local
 fi
 
 if [[ $PYTHONTHREE == "y" ]]; then
@@ -433,7 +441,7 @@ if [[ $PYTHONTHREE == "y" ]]; then
 		pip3 install --user cymysql
 	fi
 	pip3 install --user pynntp
-	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
+	chown -R $SUDO_USER:$SUDO_USER $USER_HOME/.local
 fi
 
 if [[ $DATABASE != "5" ]]; then
