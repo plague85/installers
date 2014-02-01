@@ -293,7 +293,7 @@ then
 else
 	apt-get install -qq php5-mysqlnd
 fi
-exit 100
+
 echo "Edit config files"
 sed -i -e 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/cli/php.ini
 sed -i -e 's/max_execution_time.*$/max_execution_time = 180/' /etc/php5/fpm/php.ini
