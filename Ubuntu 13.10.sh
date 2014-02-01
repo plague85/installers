@@ -94,7 +94,7 @@ echo -e "\033[1;33mInstall Python Modules for Python 2.*?\033[0m"
 echo
 echo "y=YES n=NO"
 read PYTHON2
-if [[ $PURGE != "y" ]]; then
+if [[ $PYTHON2 != "y" ]]; then
 	export PYTHON2="n"
 fi
 
@@ -103,12 +103,12 @@ echo -e "\033[1;33mInstall Python Modules for Python 3.*?\033[0m"
 echo
 echo "y=YES n=NO"
 read PYTHON3
-if [[ $PURGE != "y" ]]; then
+if [[ $PYTHON3 != "y" ]]; then
 	export PYTHON3="n"
 fi
 
 function purgesql {
-	if [[ $PURGE == "y" ]];
+	if [[ $purgesql == "y" ]];
 	then
 		echo "Purging postgresql"
 		apt-get purge -yqq postgresql*
@@ -437,7 +437,7 @@ rm libzen0*
 rm libmediainfo0*
 rm mediainfo*
 
-if [[ $EXTRAS === "y" ]]; then
+if [[ $EXTRAS == "y" ]]; then
 	export DEBIAN_FRONTEND=interactive
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
 	mv /bin/gzip /bin/gzip.old
@@ -459,55 +459,34 @@ chown -R www-data:www-data /var/www/
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
-exit
 
-if [[ $PYTHON2 === "y" ]];
+if [[ $PYTHON2 == "y" ]];
 then
-	Echo "Installing Python 2 modules"
-	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties python-virtualenv
-	sudo su $SUDO_USER
-	virtualenv --no-site-packages /var/www/nZEDb/py2virtenv
-	cd /var/www/nZEDb/py2virtenv
+	Echo "Installing Python 2 modules to your user's home folder, they are not installed globally"
+	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
 	if [[ $DATABASE == "5" ]];
 	then
-		pip install psycopg2
+		pip install --user psycopg2
 	else
-		pip install cymysql
+		pip install --user cymysql
 	fi
-	pip install pynntp
+	pip install --user pynntp
+	USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
 fi
-if [[ $PYTHON3 === "y" ]];
+
+if [[ $PYTHON3 == "y" ]];
 then
-	Echo "Installing Python 3 modules"
-	sudo su
-	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties python-virtualenv
-	sudo su $SUDO_USER
-	virtualenv --no-site-packages /var/www/nZEDb/py3virtenv
-	cd /var/www/nZEDb/py3virtenv
+	Echo "Installing Python 3 modules to your user's home folder, they are not installed globally"
+	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties
 	elif [[ $DATABASE == "5" ]];
 	then
-		if [ which pip-3.2 2>/dev/null ];
-		then
-			pip-3.2 install psycopg2
-			pip-3.2 install pynntp
-	fi
-		if [ which pip-3.3 2>/dev/null ];
-		then
-			pip-3.3 install psycopg2
-			pip-3.3 install pynntp
-		fi
+		pip3 install --user psycopg2
 	else
-		if [ which pip-3.2 2>/dev/null ];
-		then
-			pip-3.2 install cymysql
-			pip-3.2 install pynntp
-		fi
-		if [ which pip-3.3 2>/dev/null ];
-		then
-			pip-3.3 install cymysql
-			pip-3.3 install pynntp
-		fi
+		pip3 install --user cymysql
 	fi
+	pip3 install --user pynntp
+	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
 fi
 
 if [[ $DATABASE != "5" ]];
