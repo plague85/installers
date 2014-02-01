@@ -93,23 +93,22 @@ clear
 echo -e "\033[1;33mInstall Python Modules for Python 2.*?\033[0m"
 echo
 echo "y=YES n=NO"
-read PYTHON2
-if [[ $PYTHON2 != "y" ]]; then
-	export PYTHON2="n"
+read PYTHONTWO
+if [[ $PYTHONTWO != "y" ]]; then
+	export PYTHONTWO="n"
 fi
 
 clear
 echo -e "\033[1;33mInstall Python Modules for Python 3.*?\033[0m"
 echo
 echo "y=YES n=NO"
-read PYTHON3
-if [[ $PYTHON3 != "y" ]]; then
-	export PYTHON3="n"
+read PYTHONTHREE
+if [[ $PYTHONTHREE != "y" ]]; then
+	export PYTHONTHREE="n"
 fi
 
 function purgesql {
-	if [[ $purgesql == "y" ]];
-	then
+	if [[ $purgesql == "y" ]]; then
 		echo "Purging postgresql"
 		apt-get purge -yqq postgresql*
 		echo "Purging mysql"
@@ -172,8 +171,7 @@ echo "Allow adding apt repos"
 apt-get install -yqq software-properties-common
 apt-get install -yqq nano
 
-if [[ $DATABASE == "1" ]];
-then
+if [[ $DATABASE == "1" ]]; then
 	echo "Installing Mysql Server"
 	echo "Updating Apt Catalog"
 	disablepercona
@@ -182,8 +180,7 @@ then
 	updateapt
 	purgesql
 	apt-get install -yqq mysql-client mysql-server
-elif [[ $DATABASE == "2" ]];
-then
+elif [[ $DATABASE == "2" ]]; then
 	echo "Installing MariaDB Server"
 	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
 	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
@@ -201,8 +198,7 @@ then
 	updateapt
 	purgesql
 	apt-get install -yqq mariadb-server mariadb-client
-elif [[ $DATABASE == "3" ]];
-then
+elif [[ $DATABASE == "3" ]]; then
 	echo "Installing TokuDB Engine with MariaDB Server"
 	sed -i 's/deb http:\/\/repo.percona.com/#deb http:\/\/repo.percona.com/' /etc/apt/sources.list
 	sed -i 's/deb-src http:\/\/repo.percona.com/#deb-src http:\/\/repo.percona.com/' /etc/apt/sources.list
@@ -231,8 +227,7 @@ then
 	sed -i 's/#plugin-load=ha_tokudb.so/plugin-load=ha_tokudb.so/' /etc/mysql/conf.d/tokudb.cnf
 	sed -i 's/default_storage_engine.*$/default_storage_engine  = tokudb/' /etc/mysql/my.cnf
 	service mysql restart
-elif [[ $DATABASE == "4" ]];
-then
+elif [[ $DATABASE == "4" ]]; then
 	echo "Installing Percona XtraDB Server"
 	gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
 	gpg -a --export CD2EFD2A | apt-key add -
@@ -253,8 +248,7 @@ then
 	mkdir -p /etc/mysql
 	wget --no-check-certificate https://dl.dropboxusercontent.com/u/8760087/initial_my.cnf -O /etc/mysql/my.cnf
 	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
-elif [[ $DATABASE == "5" ]];
-then
+elif [[ $DATABASE == "5" ]]; then
 	echo "Installing PostGreSQL Server"
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 	sed -i 's/deb http:\/\/ftp.osuosl.org/#deb http:\/\/ftp.osuosl.org/' /etc/apt/sources.list
@@ -284,8 +278,7 @@ chmod 755 /var/log/nginx
 echo -e "\033[1;33mInstalling PHP, PHP-FPM\033[0m"
 apt-get install -yqq php5-fpm
 apt-get install -yqq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
-if [[ $DATABASE == "5" ]];
-then
+if [[ $DATABASE == "5" ]]; then
 	apt-get install -yqq php5-pgsql
 else
 	apt-get install -yqq php5-mysqlnd
@@ -397,8 +390,7 @@ service nginx restart
 
 echo "Installing ffmpeg x264..."
 
-if [[ $COMPILE == "y" ]];
-then
+if [[ $COMPILE == "y" ]]; then
 	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
 else
 	apt-get install -yqq ffmpeg libavcodec-extra-53 libavutil-extra-51 unrar x264 libav-tools libvpx-dev libx264-dev
@@ -460,12 +452,10 @@ service php5-fpm stop
 service php5-fpm start
 service nginx restart
 
-if [[ $PYTHON2 == "y" ]];
-then
+if [[ $PYTHONTWO == "y" ]]; then
 	Echo "Installing Python 2 modules to your user's home folder, they are not installed globally"
 	apt-get install -yqq python-setuptools python-pip python-dev python-software-properties
-	if [[ $DATABASE == "5" ]];
-	then
+	if [[ $DATABASE == "5" ]]; then
 		pip install --user psycopg2
 	else
 		pip install --user cymysql
@@ -475,12 +465,10 @@ then
 	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
 fi
 
-if [[ $PYTHON3 == "y" ]];
-then
+if [[ $PYTHONTHREE == "y" ]]; then
 	Echo "Installing Python 3 modules to your user's home folder, they are not installed globally"
 	apt-get install -yqq python3-setuptools python3-pip python3-dev python-software-properties
-	elif [[ $DATABASE == "5" ]];
-	then
+	if [[ $DATABASE == "5" ]]; then
 		pip3 install --user psycopg2
 	else
 		pip3 install --user cymysql
@@ -489,8 +477,7 @@ then
 	chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.local
 fi
 
-if [[ $DATABASE != "5" ]];
-then
+if [[ $DATABASE != "5" ]]; then
 	clear
 	echo -e "\033[1;33mMySQL password for root is blank."
 	echo -e "Adding Percona functions, to not install, use any password\n\n"
