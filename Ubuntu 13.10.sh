@@ -288,6 +288,8 @@ mkdir -p /var/log/nginx
 chmod 755 /var/log/nginx
 
 echo -e "\033[1;33mInstalling PHP, PHP-FPM\033[0m"
+add-apt-repository -y ppa:ondrej/php5
+updateapt
 apt-get install -yqq php5-fpm
 apt-get install -yqq php5 php5-dev php-pear php5-gd php5-curl openssh-server openssl software-properties-common ca-certificates ssl-cert memcached php5-memcache php5-memcached php5-json php5-xdebug
 if [[ $DATABASE == "5" ]]; then
@@ -314,8 +316,9 @@ sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/
 
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
-cp config/nzedb_conf.txt /etc/nginx/sites-enabled/nzedb
-cp config/nginx_conf.txt /etc/nginx/nginx.conf
+cp config/nzedb_conf.txt /etc/nginx/sites-enabled/nzedb.conf
+mv /etc/nginx/sites-enabled/nzedb.conf /etc/nginx/sites-enabled/nzedb
+#cp config/nginx_conf.txt /etc/nginx/nginx.conf
 
 sed -i "s/localhost/$IPADDY/" /etc/nginx/sites-available/nzedb
 if ! grep -q 'fastcgi_index index.php;' "/etc/nginx/fastcgi_params" ; then
