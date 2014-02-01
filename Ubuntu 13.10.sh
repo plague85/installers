@@ -427,6 +427,7 @@ if [[ $PYTHONTWO == "y" ]]; then
 	else
 		pip install --user cymysql
 	fi
+	pip install --user socketpool
 	pip install --user pynntp
 fi
 
@@ -439,6 +440,7 @@ if [[ $PYTHONTHREE == "y" ]]; then
 		pip3 install --user cymysql
 	fi
 	# does not work in python3
+	#pip3 install --user socketpool
 	#pip3 install --user pynntp
 fi
 
