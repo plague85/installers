@@ -429,7 +429,6 @@ if [[ $PYTHONTWO == "y" ]]; then
 		pip install --user cymysql
 	fi
 	pip install --user pynntp
-	chown -R $SUDO_USER:$SUDO_USER $USER_HOME/.local
 fi
 
 if [[ $PYTHONTHREE == "y" ]]; then
@@ -441,8 +440,10 @@ if [[ $PYTHONTHREE == "y" ]]; then
 		pip3 install --user cymysql
 	fi
 	pip3 install --user pynntp
-	chown -R $SUDO_USER:$SUDO_USER $USER_HOME/.local
 fi
+
+# chown your users folder
+chown -R $SUDO_USER:$SUDO_USER $USER_HOME
 
 if [[ $DATABASE != "5" ]]; then
 	clear
