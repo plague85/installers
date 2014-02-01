@@ -6,7 +6,10 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 clear
-echo -e "\033[1;33mThis installs nZEDb, Nginx Web Server, php, php-fp,. memcached, apc \n[ Mysql SQL Server, Percona SQL Server, Maria SQL Server, TokuDB SQL Server(MariaDB) or PostGreSQL Server] \nand everything that is needed to your Ubuntu install.\nThis will also completely remove apparmor and any installation you may have for MySQL, Percona, MariaDB or PostgreSQL\033[0m"
+echo -e "\033[1;33mThis installs nZEDb, Nginx Web Server, php, php-fpm, memcached and a database server"
+echo -e "[Mysql SQL Server, Percona SQL Server, Maria SQL Server, TokuDB SQL Server(MariaDB) or PostGreSQL Server]"
+echo -e "and everything that is needed for your Ubuntu install."
+echo -e "This will also completely remove apparmor and any installation you may have for MySQL, Percona, MariaDB or PostgreSQL\033[0m"
 echo
 echo "This program is free software. You can redistribute it and/or modify it under the terms of the GNU General Public License"
 echo "version 2, as published by the Free Software Foundation."
@@ -34,8 +37,8 @@ if [[ $CHOICE != "y" ]]; then
 fi
 
 clear
-echo -e "\033[1;33mnginx needs to have the ip or fqdn, localhost will not work in most cases"
-echo "Enter the ip or fqdn of this server."
+echo -e "\033[1;33mNginx needs to have the ip or FQDN, localhost will not work in most cases"
+echo "Enter the ip or FQDN of this server."
 /sbin/ifconfig | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'
 #curl -s icanhazip.com
 netcat icanhazip.com 80 <<< $'GET / HTTP/1.0\nHost: icanhazip.com\n\n' | tail -n1
@@ -44,7 +47,8 @@ echo
 read IPADDY
 
 clear
-echo "You can install the ffmpeg by using apt-get or use a precompiled static linked binary. To install the ffmpeg using apt-get type \"y\"."
+echo "You can install the ffmpeg by using apt-get or use a precompiled static linked binary."
+echo "To install the ffmpeg using apt-get and not the precompiled static binary, type 'y'."
 echo
 echo "y=YES n=NO"
 read COMPILE
@@ -88,7 +92,7 @@ clear
 echo "Install Python Modules for Python 2.*?"
 echo
 echo "y=YES n=NO"
-read PYTHON@
+read PYTHON2
 if [[ $PURGE != "y" ]]; then
 	export PYTHON2="n"
 fi
@@ -97,7 +101,7 @@ clear
 echo "Install Python Modules for Python 3.*?"
 echo
 echo "y=YES n=NO"
-read PYTHON@
+read PYTHON3
 if [[ $PURGE != "y" ]]; then
 	export PYTHON3="n"
 fi
@@ -105,6 +109,7 @@ fi
 clear
 echo "Updating apt"
 updateapt
+
 echo "Removing Apparmor"
 /etc/init.d/apparmor stop
 /etc/init.d/apparmor teardown
@@ -134,8 +139,9 @@ function purgesql {
 	fi
 }
 
-function updateapt {
+function updateapt() {
 	apt-get -qq update
+echo "here"
 }
 
 function disablepercona {
