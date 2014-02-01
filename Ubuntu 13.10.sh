@@ -174,12 +174,8 @@ echo "Configuring ssh"
 sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
 sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
 sed -i -e 's/^#ClientAliveCountMax.*$/ClientAliveCountMax 99999/' /etc/ssh/sshd_config
-
-if ! grep -q 'ForwardX11Trusted' "/etc/ssh/sshd_config" ; then
-        echo "ForwardX11Trusted yes" | tee -a /etc/ssh/sshd_config
-else
-        sed -i -e 's/ForwardX11Trusted.*$/ForwardX11Trusted yes/' /etc/ssh/sshd_config
-fi
+touch .Xauthority
+touch /home/$SUDO_USER/.Xauthority
 service ssh restart
 
 if [[ $DATABASE == "1" ]]; then
@@ -282,7 +278,10 @@ fi
 
 #Installing Prerequirements
 echo -e "\033[1;33mInstalling Nginx (engineX)\033[0m"
-apt-get install -yqq nginx
+nginx=stable
+add-apt-repository -y ppa:nginx/$nginx
+updateapt
+apt-get install -yqq nginx-extras
 mkdir -p /var/log/nginx
 chmod 755 /var/log/nginx
 
