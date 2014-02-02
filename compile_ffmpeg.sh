@@ -1,52 +1,95 @@
 #!/usr/bin/env bash
 
+if [[ $EUID -ne 0 ]]; then
+    echo "You must be root to do this." 1>&2
+    exit
+fi
+
+#get user home folder
+export USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+
 apt-get -qq update
-apt-get remove -qq ffmpeg x264 libav-tools libvpx-dev libx264-dev yasm fdk-aac
+apt-get remove -qq ffmpeg x264 libav-tools libvpx-dev libx264-dev
+apt-get remove -qq fdk-aac
 
-apt-get install -qq autoconf automake build-essential checkinstall git libass-dev libfaac-dev libgpac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev librtmp-dev libspeex-dev libtheora-dev libtool libvorbis-dev pkg-config texi2html zlib1g-dev
+apt-get install -qq autoconf automake build-essential checkinstall git libass-dev libfaac-dev libgpac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev \
+librtmp-dev libspeex-dev libtheora-dev libtool libvorbis-dev pkg-config texi2html zlib1g-dev libjack-jackd2-dev libsdl1.2-dev libva-dev libvdpau-dev libx11-dev libxfixes-dev yasm
 
-cd /tmp
-wget http://www.tortall.net/projects/yasm/releases/yasm-1.2.0.tar.gz
-tar xzvf yasm-1.2.0.tar.gz
-cd yasm-1.2.0
-./configure
-make && checkinstall --pkgname=yasm --pkgversion="1.2.0" --backup=no --deldoc=yes --default
+mkdir -p $USER_HOME/ffmpeg_build
+mkdir -p $USER_HOME/bin
+mkdir -p $USER_HOME/ffmpeg_sources
 
-git clone --depth 1 git://git.videolan.org/x264 /tmp/x264
-cd /tmp/x264
-./configure --enable-static
-make && checkinstall --pkgname=x264 --pkgversion="3:$(./version.sh | awk -F'[" ]' '/POINT/{print $4"+git"$5}')" --backup=no --deldoc=yes --fstrans=no --default
+##x264 lib
+git clone --depth 1 git://git.videolan.org/x264 $USER_HOME/ffmpeg_sources/x264
+cd $USER_HOME/ffmpeg_sources/x264
+./configure --prefix="$USER_HOME/ffmpeg_build" --bindir="$USER_HOME/bin" --enable-static --disable-opencl
+make
+make install
 
-git clone --depth 1 git://github.com/mstorsjo/fdk-aac.git /tmp/fdk-aac
-cd /tmp/fdk-aac
+##aac lib
+git clone --depth 1 git://github.com/mstorsjo/fdk-aac.git $USER_HOME/ffmpeg_sources/fdk-aac
+cd $USER_HOME/ffmpeg_sources/fdk-aac
 autoreconf -fiv
-./configure --disable-shared
-make && checkinstall --pkgname=fdk-aac --pkgversion="$(date +%Y%m%d%H%M)-git" --backup=no --deldoc=yes --fstrans=no --default
+./configure --prefix="$USER_HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
 
-git clone --depth 1 http://git.chromium.org/webm/libvpx.git /tmp/libvpx
-cd /tmp/libvpx
-./configure
-make && checkinstall --pkgname=libvpx --pkgversion="1:$(date +%Y%m%d%H%M)-git" --backup=no --deldoc=yes --fstrans=no --default
+##opus lib
+cd $USER_HOME/ffmpeg_sources
+wget -c http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz
+tar xzvf opus-1.1.tar.gz
+cd opus-1.1
+./configure --prefix="$USER_HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
 
-git clone --depth 1 git://source.ffmpeg.org/ffmpeg /tmp/ffmpeg
-cd /tmp/ffmpeg
-./configure --enable-gpl --enable-libfaac --enable-libfdk-aac --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librtmp --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-nonfree --enable-version3
-make && checkinstall --pkgname=ffmpeg --pkgversion="7:$(date +%Y%m%d%H%M)-git" --backup=no --deldoc=yes --fstrans=no --default
+##vpx lib
+git clone --depth 1 http://git.chromium.org/webm/libvpx.git $USER_HOME/ffmpeg_sources/libvpx
+cd $USER_HOME/ffmpeg_sources/libvpx
+./configure --prefix="$USER_HOME/ffmpeg_build" --disable-examples
+make
+make install
+make clean
+
+##build ffmpeg
+git clone --depth 1 git://source.ffmpeg.org/ffmpeg $USER_HOME/ffmpeg_sources/ffmpeg
+cd $USER_HOME/ffmpeg_sources/ffmpeg
+export PKG_CONFIG_PATH="$USER_HOME/ffmpeg_build/lib/pkgconfig"
+./configure --prefix="$USER_HOME/ffmpeg_build" --extra-cflags="-I$USER_HOME/ffmpeg_build/include" --extra-ldflags="-L$USER_HOME/ffmpeg_build/lib" \
+  --bindir="$USER_HOME/bin" --extra-libs="-ldl" --enable-gpl --enable-libass --enable-libfdk-aac \
+  --enable-libmp3lame --enable-libopus --enable-libtheora --enable-libvorbis --enable-libvpx \
+  --enable-libx264 --enable-nonfree --enable-libfaac --enable-librtmp --enable-libtheora \
+  --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-x11grab --enable-version3
+make
+make install
+
 
 apt-get install -qq libavcodec-extra-53 libav-tools
-hash x264 ffmpeg ffprobe
+hash x264 ffmpeg ffplay ffprobe
 
-cd /tmp/ffmpeg
+##build qt-faststart
+cd $USER_HOME/ffmpeg_sources/ffmpeg
 make tools/qt-faststart
-sudo checkinstall --pkgname=qt-faststart --pkgversion="$(date +%Y%m%d%H%M)-git" --backup=no --deldoc=yes --fstrans=no --default install -Dm755 tools/qt-faststart /usr/local/bin/qt-faststart
-
-cd /tmp/x264
+make install
 make distclean
-./configure --enable-static
-make && checkinstall --pkgname=x264 --pkgversion="3:$(./version.sh | awk -F'[" ]' '/POINT/{print $4"+git"$5}')" --backup=no --deldoc=yes --fstrans=no --default
 
-apt-get install -qq unrar lame mediainfo
+##lavf support in x264
+cd $USER_HOME/ffmpeg_sources/x264
+make distclean
+./configure --prefix="$USER_HOME/ffmpeg_build" --bindir="$USER_HOME/bin" --enable-static --disable-opencl
+make
+make install
+make distclean
+
+apt-get install -qq lame
+
+# chown your users folder
+chown -R $SUDO_USER:$SUDO_USER $USER_HOME/bin
+chown -R $SUDO_USER:$SUDO_USER $USER_HOME/ffmpeg_build
+chown -R $SUDO_USER:$SUDO_USER $USER_HOME/ffmpeg_sources
 
 clear
-echo "ffmpeg x264 mediainfo unrar lame is now installed..."
+echo "ffmpeg, x264 and lame are now installed..."
 sleep 5
