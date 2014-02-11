@@ -398,7 +398,13 @@ rm mediainfo*
 
 if [[ $EXTRAS == "y" ]]; then
 	unset DEBIAN_FRONTEND
-	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb
+	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc
+	pear channel-discover pear.phpdoc.org
+	pear install phpdoc/phpDocumentor
+	pear install --alldeps PHP_CodeSniffer
+	wget http://cs.sensiolabs.org/get/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer
+	pear channel-discover pear.phpunit.de
+	pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 fi
@@ -408,13 +414,13 @@ apt-get autoremove
 
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
 
+cp /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/default.sh /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/tmux.sh
 chmod -R 777 /var/www/nZEDb/smarty/templates_c
 chmod -R 777 /var/www/nZEDb/www/covers
 chmod -R 777 /var/www/nZEDb/nzbfiles
 chmod 777 /var/www/nZEDb/www
 chmod 777 /var/www/nZEDb/www/install
 chown -R www-data:www-data /var/www/
-
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
@@ -444,6 +450,11 @@ if [[ $PYTHONTHREE == "y" ]]; then
 	#pip3 install --user pynntp
 fi
 
+#create tmpunrar ramdisk
+mkdir /var/www/nZEDb/tmpunrar
+echo 'tmpfs /var/www/nZEDb/tmpunrar tmpfs user,uid=1000,gid=33,nodev,nodiratime,nosuid,size=1G,mode=777 0 0' >> /etc/fstab
+mount /var/www/nZEDb/tmpunrar
+
 # chown your users folder
 chown -R $SUDO_USER:$SUDO_USER $USER_HOME
 
@@ -466,5 +477,6 @@ echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
 echo "Go to https://$IPADDY to finish nZEDb install."
 echo "For questions and problems log on to #nZEDb on irc.Synirc.net"
+echo "During install, use /var/www/nZEDb/tmpunrar as the tmpunrar path"
 echo -e "\n\n\033[0m"
 exit
