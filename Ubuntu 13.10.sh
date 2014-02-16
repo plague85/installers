@@ -397,6 +397,7 @@ rm libmediainfo0*
 rm mediainfo*
 
 if [[ $EXTRAS == "y" ]]; then
+	echo -e "\033[1;33mInstalling Extras\033[0m"
 	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc
 	pear channel-discover pear.phpdoc.org
@@ -409,6 +410,7 @@ if [[ $EXTRAS == "y" ]]; then
 	ln -s /usr/bin/pigz /bin/gzip
 fi
 
+echo -e "\033[1;33mCleaning Up\033[0m"
 apt-get autoclean
 apt-get autoremove
 
@@ -419,6 +421,7 @@ chmod -R 777 /var/www/nZEDb/smarty/templates_c
 chmod -R 777 /var/www/nZEDb/www/covers
 chmod -R 777 /var/www/nZEDb/nzbfiles
 chmod 777 /var/www/nZEDb/www
+chmod -R 777 /var/www/nZEDb/resources/
 chmod 777 /var/www/nZEDb/www/install
 chown -R $SUDO_USER:www-data /var/www/
 service php5-fpm stop
