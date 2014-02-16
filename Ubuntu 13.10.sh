@@ -420,7 +420,7 @@ chmod -R 777 /var/www/nZEDb/www/covers
 chmod -R 777 /var/www/nZEDb/nzbfiles
 chmod 777 /var/www/nZEDb/www
 chmod 777 /var/www/nZEDb/www/install
-chown -R www-data:www-data /var/www/
+chown -R $SUDO_USER:www-data /var/www/
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
