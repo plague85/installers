@@ -386,15 +386,20 @@ fi
 
 echo -e "\033[1;33mInstalling Mediainfo\033[0m"
 
-wget -c http://mediaarea.net/download/binary/libzen0/0.4.29/libzen0_0.4.29-1_amd64.xUbuntu_13.04.deb
-wget -c http://mediaarea.net/download/binary/libmediainfo0/0.7.67/libmediainfo0_0.7.67-1_amd64.xUbuntu_13.10.deb
-wget -c http://mediaarea.net/download/binary/mediainfo/0.7.67/mediainfo_0.7.67-1_amd64.Debian_7.0.deb
-dpkg -i libzen0*
-dpkg -i libmediainfo0*
-dpkg -i mediainfo*
-rm libzen0*
-rm libmediainfo0*
-rm mediainfo*
+add-apt-repository -y ppa:djcj/mediainfo
+updateapt
+apt-get install -yyq mediainfo
+
+# These not necessary as long as the ppa stays current
+#wget -c http://mediaarea.net/download/binary/libzen0/0.4.29/libzen0_0.4.29-1_amd64.xUbuntu_13.04.deb
+#wget -c http://mediaarea.net/download/binary/libmediainfo0/0.7.67/libmediainfo0_0.7.67-1_amd64.xUbuntu_13.10.deb
+#wget -c http://mediaarea.net/download/binary/mediainfo/0.7.67/mediainfo_0.7.67-1_amd64.Debian_7.0.deb
+#dpkg -i libzen0*
+#dpkg -i libmediainfo0*
+#dpkg -i mediainfo*
+#rm libzen0*
+#rm libmediainfo0*
+#rm mediainfo*
 
 if [[ $EXTRAS == "y" ]]; then
 	echo -e "\033[1;33mInstalling Extras\033[0m"
