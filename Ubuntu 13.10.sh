@@ -451,9 +451,8 @@ if [[ $PYTHONTHREE == "y" ]]; then
 fi
 
 #create tmpunrar ramdisk
-mkdir /var/www/nZEDb/tmpunrar
-echo 'tmpfs /var/www/nZEDb/tmpunrar tmpfs user,uid=1000,gid=33,nodev,nodiratime,nosuid,size=1G,mode=777 0 0' >> /etc/fstab
-mount /var/www/nZEDb/tmpunrar
+echo 'tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=1000,gid=33,nodev,nodiratime,nosuid,size=1G,mode=777 0 0' >> /etc/fstab
+mount /var/www/nZEDb/resources/tmp/unrar
 
 # chown your users folder
 chown -R $SUDO_USER:$SUDO_USER $USER_HOME
@@ -477,6 +476,5 @@ echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
 echo "Go to https://$IPADDY to finish nZEDb install."
 echo "For questions and problems log on to #nZEDb on irc.Synirc.net"
-echo "During install, use /var/www/nZEDb/tmpunrar as the tmpunrar path"
 echo -e "\n\n\033[0m"
 exit
