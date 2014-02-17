@@ -404,8 +404,8 @@ apt-get install -yyq mediainfo
 if [[ $EXTRAS == "y" ]]; then
 	echo -e "\033[1;33mInstalling Extras\033[0m"
 	unset DEBIAN_FRONTEND
-	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer \
-		diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
+	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer
+	apt-get install -yqq diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
 	pear channel-discover pear.phpdoc.org
 	pear install phpdoc/phpDocumentor
 	pear install --alldeps PHP_CodeSniffer
