@@ -404,7 +404,8 @@ apt-get install -yyq mediainfo
 if [[ $EXTRAS == "y" ]]; then
 	echo -e "\033[1;33mInstalling Extras\033[0m"
 	unset DEBIAN_FRONTEND
-	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc
+	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer \
+		diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
 	pear channel-discover pear.phpdoc.org
 	pear install phpdoc/phpDocumentor
 	pear install --alldeps PHP_CodeSniffer
@@ -413,6 +414,8 @@ if [[ $EXTRAS == "y" ]]; then
 	pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
+	echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
+	smbpasswd -a $SUDO_USER
 fi
 
 echo -e "\033[1;33mCleaning Up\033[0m"
