@@ -336,25 +336,6 @@ fi
 unlink /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/nzedb /etc/nginx/sites-enabled/nzedb
 
-echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
-
-#ssl
-mkdir -p /etc/ssl/nginx/conf
-cd /etc/ssl/nginx/conf
-echo -e "\033[1;33mEnter a Secure password\033[0m"
-openssl genrsa -des3 -out server.key 4096
-echo -e "\033[1;33mRe-enter a Secure password\033[0m"
-openssl req -new -key server.key -out server.csr
-cp server.key server.key.org
-echo -e "\033[1;33mRe-enter a Secure password\033[0m"
-openssl rsa -in server.key.org -out server.key
-echo -e "\033[1;33mRe-enter a Secure password\033[0m"
-openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
-
-service php5-fpm stop
-service php5-fpm start
-service nginx restart
-
 echo -e "\033[1;33mInstalling ffmpeg x264...\033[0m"
 
 if [[ $COMPILE == "y" ]]; then
@@ -464,6 +445,25 @@ fi
 #create tmpunrar ramdisk
 echo 'tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=1000,gid=33,nodev,nodiratime,nosuid,size=1G,mode=777 0 0' >> /etc/fstab
 mount /var/www/nZEDb/resources/tmp/unrar
+
+echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
+
+#ssl
+mkdir -p /etc/ssl/nginx/conf
+cd /etc/ssl/nginx/conf
+echo -e "\033[1;33mEnter a Secure password\033[0m"
+openssl genrsa -des3 -out server.key 4096
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
+openssl req -new -key server.key -out server.csr
+cp server.key server.key.org
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
+openssl rsa -in server.key.org -out server.key
+echo -e "\033[1;33mRe-enter a Secure password\033[0m"
+openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
+
+service php5-fpm stop
+service php5-fpm start
+service nginx restart
 
 # chown your users folder
 chown -R $SUDO_USER:$SUDO_USER $USER_HOME
