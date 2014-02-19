@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 if [[ $EUID -ne 0 ]]; then
-	echo "You must be root to do this." 1>&2
-	exit
+	if [[ whoami != $SUDO_USER ]]; then
+		export script=`basename $0`
+		echo "You must run as a user using sudo ${script}, not root user, to run this." 1>&2
+		exit
+	fi
 fi
 
 clear
@@ -27,9 +30,9 @@ echo " # warranty of title. The entire risk of the use or the results from the u
 echo "---------------------------------------------------------------------------------------------------------------"
 echo
 echo
-echo
 echo "Do you Agree?"
 echo "y=YES n=NO"
+echo
 
 read CHOICE
 if [[ $CHOICE != "y" ]]; then
@@ -52,6 +55,7 @@ echo -e "\033[1;33mYou can install the ffmpeg by using apt-get or use a precompi
 echo -e "To install the ffmpeg using apt-get and not the precompiled static binary, type 'y'.\033[0m"
 echo
 echo "y=YES n=NO"
+echo
 read COMPILE
 if [[ $COMPILE != "y" ]]; then
 	export COMPILE="n"
@@ -61,6 +65,7 @@ clear
 echo -e "\033[1;33mInstall extra apps that are not necessarily needed for nZEDb operation, such as htop, mytop, etc.\033[0m"
 echo
 echo "y=YES n=NO"
+echo
 read EXTRAS
 if [[ $EXTRAS != "y" ]]; then
 	export EXTRAS="n"
@@ -84,6 +89,7 @@ clear
 echo -e "\033[1;33mCompletey remove MySQL, Percona, MariaDB and PostgreSQL Servers?\033[0m"
 echo
 echo "y=YES n=NO"
+echo
 read PURGE
 if [[ $PURGE != "y" ]]; then
 	export PURGE="n"
@@ -93,6 +99,7 @@ clear
 echo -e "\033[1;33mInstall Python Modules for Python 2.*?\033[0m"
 echo
 echo "y=YES n=NO"
+echo
 read PYTHONTWO
 if [[ $PYTHONTWO != "y" ]]; then
 	export PYTHONTWO="n"
@@ -102,6 +109,7 @@ clear
 echo -e "\033[1;33mInstall Python Modules for Python 3.*?\033[0m"
 echo
 echo "y=YES n=NO"
+echo
 read PYTHONTHREE
 if [[ $PYTHONTHREE != "y" ]]; then
 	export PYTHONTHREE="n"
@@ -454,7 +462,9 @@ if [[ $PYTHONTHREE == "y" ]]; then
 fi
 
 #create tmpunrar ramdisk
-echo 'tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=1000,gid=33,nodev,nodiratime,nosuid,size=1G,mode=777 0 0' >> /etc/fstab
+export uid=`id -u $SUDO_USER`
+export gid=`id -u www-data`
+echo "tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=${uid},gid=${gid},nodev,nodiratime,nosuid,size=1G,mode=777 0 0" >> /etc/fstab
 mount /var/www/nZEDb/resources/tmp/unrar
 
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
