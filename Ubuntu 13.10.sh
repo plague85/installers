@@ -427,9 +427,6 @@ fi
 if [ -d /var/www ]; then
 	chown -R $SUDO_USER:www-data /var/www
 fi
-service php5-fpm stop
-service php5-fpm start
-service nginx restart
 
 if [[ $PYTHONTWO == "y" ]]; then
 	echo -e "\033[1;33mInstalling Python 2 modules to your user's home folder, they are not installed globally\033[0m"
