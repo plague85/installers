@@ -410,7 +410,7 @@ chmod -R 777 /var/www/nZEDb/smarty/templates_c
 chmod -R 777 /var/www/nZEDb/www/covers
 chmod -R 777 /var/www/nZEDb/nzbfiles
 chmod 777 /var/www/nZEDb/www
-chmod -R 777 /var/www/nZEDb/resources/
+#chmod -R 777 /var/www/nZEDb/resources/
 chmod 777 /var/www/nZEDb/www/install
 chown -R $SUDO_USER:www-data /var/www/
 service php5-fpm stop
