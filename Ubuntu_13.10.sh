@@ -3,9 +3,16 @@
 if [[ $EUID -ne 0 ]]; then
 	if [[ whoami != $SUDO_USER ]]; then
 		export script=`basename $0`
-		echo "You must run as a user using sudo ${script}, not root user, to run this." 1>&2
+		echo
+		echo -e "\033[1;31mYou must run this script as a user using sudo ${script}.\033[0m" 1>&2
+		echo
 		exit
 	fi
+	export script=`basename $0`
+	echo
+	echo -e "\033[1;31mYou must run this script as a user using sudo ${script}, not as the root user.\033[0m" 1>&2
+	echo
+	exit
 fi
 
 clear
