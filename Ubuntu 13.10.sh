@@ -406,13 +406,27 @@ apt-get autoremove
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
 
 cp /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/default.sh /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/tmux.sh
-chmod -R 777 /var/www/nZEDb/smarty/templates_c
-chmod -R 777 /var/www/nZEDb/www/covers
-chmod -R 777 /var/www/nZEDb/nzbfiles
-chmod 777 /var/www/nZEDb/www
-#chmod -R 777 /var/www/nZEDb/resources/
-chmod 777 /var/www/nZEDb/www/install
-chown -R $SUDO_USER:www-data /var/www/
+if [ -d /var/www/nZEDb/smarty/templates_c ]; then
+	chmod -R 777 /var/www/nZEDb/smarty/templates_c
+fi
+if [ -d /var/www/nZEDb/www/covers ]; then
+	chmod -R 777 /var/www/nZEDb/www/covers
+fi
+if [ -d /var/www/nZEDb/nzbfiles ]; then
+	chmod -R 777 /var/www/nZEDb/nzbfiles
+fi
+if [ -d /var/www/nZEDb/www ]; then
+	chmod 777 /var/www/nZEDb/www
+fi
+if [ -d /var/www/nZEDb/resources ]; then
+	chmod -R 777 /var/www/nZEDb/resources
+fi
+if [ -d /var/www/nZEDb/www/install]; then
+	chmod 777 /var/www/nZEDb/www/install
+fi
+if [ -d /var/www ]; then
+	chown -R $SUDO_USER:www-data /var/www
+fi
 service php5-fpm stop
 service php5-fpm start
 service nginx restart
