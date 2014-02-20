@@ -355,6 +355,16 @@ sed -i 's/display_errors.*$/display_errors = On/' /etc/php5/cli/php.ini
 sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/fpm/php.ini
 sed -i 's/display_startup_errors.*$/display_startup_errors = On/' /etc/php5/cli/php.ini
 
+echo -e "\033[1;33mCommpile TMUX\033[0m"
+apt-get install -yqq pkg-config libncurses5-dev libevent-dev
+cd /home/$SUDO_USER
+git clone https://github.com/ThomasAdam/tmux.git
+cd tmux
+./autogen.sh
+./configure && make
+make install
+cd /home/$SUDO_USER
+
 mkdir -p /var/www/nZEDb
 chmod 777 /var/www/nZEDb
 wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/nzedb_conf.txt -O /etc/nginx/sites-available/nzedb
@@ -421,7 +431,7 @@ if [[ $EXTRAS == "y" ]]; then
 	echo -e "\033[1;33mInstalling Extras\033[0m"
 	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer
-	apt-get install -yqq diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
+	apt-get install -yqq diffuse tinyca meld unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 	echo -e  "\033[1;33mCreating VNSTAT Database for ETH0\033[0m"
