@@ -424,9 +424,13 @@ if [[ $EXTRAS == "y" ]]; then
 	apt-get install -yqq diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
+	echo -e  "\033[1;33mCreating VNSTAT Database for ETH0\033[0m"
+	/usr/bin/vnstat -u -i eth0
+	sed -i 's/DAEMON=\/usr\/sbin\//DAEMON=\/usr\/bin\//' /etc/init.d/vnstat
 fi
 
 if [[ $PEARMOD == "y" ]]; then
+	echo -e "\033[1;33mInstalling Pear Modules\033[0m"
 	pear channel-discover pear.phpdoc.org
 	pear install phpdoc/phpDocumentor
 	pear install --alldeps PHP_CodeSniffer
