@@ -413,8 +413,6 @@ if [[ $EXTRAS == "y" ]]; then
 	fi
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
-	echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
-	smbpasswd -a $SUDO_USER
 fi
 
 echo -e "\033[1;33mCleaning Up\033[0m"
@@ -481,6 +479,11 @@ if [[ $phymem -gt 3 ]]; then
 fi
 
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
+
+if [[ $EXTRAS == "y" ]]; then
+    echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
+    smbpasswd -a $SUDO_USER
+fi
 
 #ssl
 mkdir -p /etc/ssl/nginx/conf
