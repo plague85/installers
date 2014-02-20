@@ -420,6 +420,12 @@ apt-get autoclean
 apt-get autoremove
 
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
+git stash
+if [[ $SUDO_USER -eq "jonnyboy" ]]; then
+	cd /var/www/nZEDb
+	git stash
+	git checkout dev
+fi
 
 cp /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/default.sh /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/tmux.sh
 if [ -d /var/www/nZEDb/smarty/templates_c ]; then
@@ -437,7 +443,7 @@ fi
 if [ -d /var/www/nZEDb/resources ]; then
 	chmod -R 777 /var/www/nZEDb/resources
 fi
-if [ -d /var/www/nZEDb/www/install]; then
+if [ -d /var/www/nZEDb/www/install ]; then
 	chmod 777 /var/www/nZEDb/www/install
 fi
 if [ -d /var/www ]; then
@@ -472,10 +478,12 @@ fi
 #create tmpunrar ramdisk
 export phymem=$(free -g|awk '/^Mem:/{print $2}')
 if [[ $phymem -gt 3 ]]; then
-	export uid=`id -u $SUDO_USER`
-	export gid=`id -u www-data`
-	echo "tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=${uid},gid=${gid},nodev,nodiratime,nosuid,size=1G,mode=777 0 0" >> /etc/fstab
-	mount /var/www/nZEDb/resources/tmp/unrar
+	if [ -d /var/www/nZEDb/resources/tmp/unrar ]; then
+		export uid=`id -u $SUDO_USER`
+		export gid=`id -u www-data`
+		echo "tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=${uid},gid=${gid},nodev,nodiratime,nosuid,size=1G,mode=777 0 0" >> /etc/fstab
+		mount /var/www/nZEDb/resources/tmp/unrar
+	fi
 fi
 
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
