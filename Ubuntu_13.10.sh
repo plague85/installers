@@ -402,12 +402,15 @@ if [[ $EXTRAS == "y" ]]; then
 	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer
 	apt-get install -yqq diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
-	pear channel-discover pear.phpdoc.org
-	pear install phpdoc/phpDocumentor
-	pear install --alldeps PHP_CodeSniffer
-	wget http://cs.sensiolabs.org/get/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer
-	pear channel-discover pear.phpunit.de
-	pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
+	#most users will not need thses
+	if [[ $SUDO_USER -eq "jonnyboy" ]]; then
+		pear channel-discover pear.phpdoc.org
+		pear install phpdoc/phpDocumentor
+		pear install --alldeps PHP_CodeSniffer
+		wget http://cs.sensiolabs.org/get/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer
+		pear channel-discover pear.phpunit.de
+		pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
+	fi
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 	echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
