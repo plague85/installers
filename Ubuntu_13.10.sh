@@ -469,10 +469,13 @@ if [[ $PYTHONTHREE == "y" ]]; then
 fi
 
 #create tmpunrar ramdisk
-export uid=`id -u $SUDO_USER`
-export gid=`id -u www-data`
-echo "tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=${uid},gid=${gid},nodev,nodiratime,nosuid,size=1G,mode=777 0 0" >> /etc/fstab
-mount /var/www/nZEDb/resources/tmp/unrar
+export phymem=$(free -g|awk '/^Mem:/{print $2}')
+if [[ $phymem -gt 3 ]]; then
+	export uid=`id -u $SUDO_USER`
+	export gid=`id -u www-data`
+	echo "tmpfs /var/www/nZEDb/resources/tmp/unrar tmpfs user,uid=${uid},gid=${gid},nodev,nodiratime,nosuid,size=1G,mode=777 0 0" >> /etc/fstab
+	mount /var/www/nZEDb/resources/tmp/unrar
+fi
 
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
 
