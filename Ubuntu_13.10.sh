@@ -79,6 +79,26 @@ if [[ $EXTRAS != "y" ]]; then
 fi
 
 clear
+echo -e "\033[1;33mInstall pear modules needed for NetBeans.\033[0m"
+echo
+echo "y=YES n=NO"
+echo
+read PEARMOD
+if [[ $PEARMOD != "y" ]]; then
+        export PEARMOD="n"
+fi
+
+clear
+echo -e "\033[1;33mCheckout the dev branch in nZEDb?\033[0m"
+echo
+echo "y=YES n=NO"
+echo
+read CHECKOUTDEV
+if [[ $CHECKOUTDEV != "y" ]]; then
+        export CHECKOUTDEV="n"
+fi
+
+clear
 echo -e "\033[1;33mChoose your SQL Server."
 echo
 echo "[1] Mysql Server"
@@ -402,31 +422,34 @@ if [[ $EXTRAS == "y" ]]; then
 	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer
 	apt-get install -yqq diffuse tinyca meld tmux unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba
-	#most users will not need thses
-	if [[ $SUDO_USER -eq "jonnyboy" ]]; then
-		pear channel-discover pear.phpdoc.org
-		pear install phpdoc/phpDocumentor
-		pear install --alldeps PHP_CodeSniffer
-		wget http://cs.sensiolabs.org/get/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer
-		pear channel-discover pear.phpunit.de
-		pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
-	fi
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
+fi
+
+if [[ $PEARMOD == "y" ]]; then
+	pear channel-discover pear.phpdoc.org
+	pear install phpdoc/phpDocumentor
+	pear install --alldeps PHP_CodeSniffer
+	wget http://cs.sensiolabs.org/get/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer
+	pear channel-discover pear.phpunit.de
+	pear install --alldeps phpunit/Diff phpunit/Exporter  phpunit/File_Iterator phpunit/FinderFacade phpunit/Git phpunit/PHPUnit phpunit/PHPUnit_MockObject phpunit/PHPUnit_Selenium phpunit/PHPUnit_SkeletonGenerator phpunit/PHPUnit_Story phpunit/PHPUnit_TestListener_DBUS phpunit/PHPUnit_TestListener_XHProf phpunit/PHPUnit_TicketListener_Fogbugz phpunit/PHPUnit_TicketListener_GitHub phpunit/PHP_CodeBrowser phpunit/PHP_CodeCoverage phpunit/PHP_Invoker phpunit/PHP_Timer phpunit/PHP_TokenStream phpunit/Text_Template phpunit/Version phpunit/bytekit phpunit/phpcov  phpunit/phpcpd phpunit/phpdcd phpunit/phploc
 fi
 
 echo -e "\033[1;33mCleaning Up\033[0m"
 apt-get autoclean
 apt-get autoremove
 
+echo -e "\033[1;33mCloning nZEDb\033[0m"
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
+cd /var/www/nZEDb
 git stash
-if [[ $SUDO_USER -eq "jonnyboy" ]]; then
+if [[ $CHECKOUTDEV == "y" ]]; then
 	cd /var/www/nZEDb
 	git stash
 	git checkout dev
 fi
 
+echo -e "\033[1;33mSetting File Permissions\033[0m"
 cp /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/default.sh /var/www/nZEDb/misc/update/nix/tmux/powerline/powerline/themes/tmux.sh
 if [ -d /var/www/nZEDb/smarty/templates_c ]; then
 	chmod -R 777 /var/www/nZEDb/smarty/templates_c
