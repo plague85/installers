@@ -440,8 +440,8 @@ if [[ $PEARMOD == "y" ]]; then
 fi
 
 echo -e "\033[1;33mCleaning Up\033[0m"
-apt-get autoclean
-apt-get autoremove
+apt-get -yqq autoclean
+apt-get -yqq autoremove
 
 echo -e "\033[1;33mCloning nZEDb\033[0m"
 git clone https://github.com/nZEDb/nZEDb.git /var/www/nZEDb
@@ -513,14 +513,13 @@ if [[ $phymem -gt 3 ]]; then
 	fi
 fi
 
-echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
-
 if [[ $EXTRAS == "y" ]]; then
     echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
     smbpasswd -a $SUDO_USER
 fi
 
 #ssl
+echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
 mkdir -p /etc/ssl/nginx/conf
 cd /etc/ssl/nginx/conf
 echo -e "\033[1;33mEnter a Secure password\033[0m"
