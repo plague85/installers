@@ -304,7 +304,7 @@ echo -e "\033[1;33mInstalling Nginx (engineX)\033[0m"
 export nginx=stable
 add-apt-repository -y ppa:nginx/$nginx
 updateapt
-apt-get install -yqq nginx-extras
+apt-get install -yqq nginx-extras apache2-utils
 mkdir -p /var/log/nginx
 chmod 755 /var/log/nginx
 
