@@ -462,6 +462,7 @@ if [[ $CHECKOUTDEV == "y" ]]; then
 	git stash
 	git checkout dev
 	git stash
+	ln -sv misc/update/nix/tmux/*.php .
 fi
 
 echo -e "\033[1;33mSetting File Permissions\033[0m"
