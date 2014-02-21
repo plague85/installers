@@ -85,7 +85,7 @@ echo "y=YES n=NO"
 echo
 read PEARMOD
 if [[ $PEARMOD != "y" ]]; then
-        export PEARMOD="n"
+		export PEARMOD="n"
 fi
 
 clear
@@ -95,7 +95,7 @@ echo "y=YES n=NO"
 echo
 read CHECKOUTDEV
 if [[ $CHECKOUTDEV != "y" ]]; then
-        export CHECKOUTDEV="n"
+		export CHECKOUTDEV="n"
 fi
 
 clear
@@ -524,8 +524,8 @@ if [[ $phymem -gt 3 ]]; then
 fi
 
 if [[ $EXTRAS == "y" ]]; then
-    echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
-    smbpasswd -a $SUDO_USER
+	echo -e "\033[1;33mSet Secure Password for Samba\033[0m"
+	smbpasswd -a $SUDO_USER
 fi
 
 #ssl
