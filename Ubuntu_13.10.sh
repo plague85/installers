@@ -461,6 +461,7 @@ if [[ $CHECKOUTDEV == "y" ]]; then
 	cd /var/www/nZEDb
 	git stash
 	git checkout dev
+	git stash
 fi
 
 echo -e "\033[1;33mSetting File Permissions\033[0m"
