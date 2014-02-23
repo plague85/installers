@@ -298,7 +298,7 @@ elif [[ $DATABASE == "4" ]]; then
 	purgesql
 	mkdir -p /etc/mysql
 	wget --no-check-certificate https://raw2.github.com/jonnyboy/installers/master/config/my_cnf.txt -O /etc/mysql/my.cnf
-	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6
+	apt-get install -yqq percona-server-client-5.6 percona-server-server-5.6 percona-toolkit
 elif [[ $DATABASE == "5" ]]; then
 	echo -e "\033[1;33mInstalling PostGreSQL Server\033[0m"
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
