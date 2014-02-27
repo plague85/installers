@@ -15,9 +15,6 @@ server {
 	ssl_certificate /etc/ssl/nginx/conf/server.crt;
 	ssl_certificate_key /etc/ssl/nginx/conf/server.key;
 
-	access_log  /usr/share/nginx/access.log;
-	error_log   /usr/share/nginx/error.log;
-
 	location ^~ / {
 		root /var/www/nZEDb/www/;
 		index index.php;
