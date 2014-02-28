@@ -431,7 +431,7 @@ if [[ $EXTRAS == "y" ]]; then
 	echo -e "\033[1;33mInstalling Extras\033[0m"
 	unset DEBIAN_FRONTEND
 	apt-get install -yqq nmon mytop iftop bwm-ng vnstat atop iotop ifstat htop pastebinit pigz iperf geany geany-plugins-common geany-plugins geany-plugin-spellcheck ttf-mscorefonts-installer
-	apt-get install -yqq diffuse tinyca meld unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba nfs-common
+	apt-get install -yqq diffuse tinyca meld unrar p7zip-full make screen git gedit gitweb cifs-utils doxygen doxygen-doc samba nfs-common vlan
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 	echo -e  "\033[1;33mCreating VNSTAT Database for ETH0\033[0m"
