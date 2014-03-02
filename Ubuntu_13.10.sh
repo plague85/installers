@@ -530,6 +530,10 @@ if [[ $EXTRAS == "y" ]]; then
 	smbpasswd -a $SUDO_USER
 fi
 
+#install addminer
+echo -e "\033[1;33mInstalling Adminer to www/adminer.php\033[0m"
+wget http://www.adminer.org/latest-mysql-en.php -O /var/www/nZEDb/www/adminer.php
+
 #ssl
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
 mkdir -p /etc/ssl/nginx/conf
