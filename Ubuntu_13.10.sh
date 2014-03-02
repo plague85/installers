@@ -573,6 +573,7 @@ clear
 echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
 echo "Go to https://$IPADDY to finish nZEDb install."
+echo "Adminer is located at  https://$IPADDY/adminer.php."
 echo "For questions and problems log on to #nZEDb on irc.Synirc.net"
 echo -e "\n\n\033[0m"
 exit
