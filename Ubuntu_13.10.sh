@@ -214,6 +214,17 @@ sed -i -e 's/^# set tabsize 8/set tabsize 4/' $USER_HOME/.nanorc
 sed -i -e 's/^# set historylog/set historylog/' $USER_HOME/.nanorc
 ln -s $USER_HOME/.nanorc /root/
 
+echo -e "\033[1;33mConfiguring OpenNTPD\033[0m"
+ntpdate pool.ntp.org
+apt-get install openntpd
+mv /etc/openntpd/ntpd.conf /etc/openntpd/ntpd.conf.orig
+echo 'server 0.us.pool.ntp.org' >> /etc/openntpd/ntpd.conf
+echo 'server 1.us.pool.ntp.org' >> /etc/openntpd/ntpd.conf
+echo 'server 2.us.pool.ntp.org' >> /etc/openntpd/ntpd.conf
+echo 'server 3.us.pool.ntp.org' >> /etc/openntpd/ntpd.conf
+echo 'listen on $IPADDY' >> /etc/openntpd/ntpd.conf
+service openntpd restart
+
 echo -e "\033[1;33mConfiguring ssh\033[0m"
 sed -i -e 's/^#ClientAliveInterval.*$/ClientAliveInterval 30/' /etc/ssh/sshd_config
 sed -i -e 's/^#TCPKeepAlive.*$/TCPKeepAlive yes/' /etc/ssh/sshd_config
