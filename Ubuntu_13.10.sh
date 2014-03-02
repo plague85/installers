@@ -541,6 +541,10 @@ if [[ $EXTRAS == "y" ]]; then
 	smbpasswd -a $SUDO_USER
 fi
 
+#install addminer
+echo -e "\033[1;33mInstalling Adminer to www/adminer.php\033[0m"
+wget http://www.adminer.org/latest.php -O /var/www/nZEDb/www/adminer.php
+
 #ssl
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
 mkdir -p /etc/ssl/nginx/conf
@@ -580,6 +584,7 @@ clear
 echo -e "\033[1;33m-----------------------------------------------"
 echo -e "\033[1;33mInstall Complete...."
 echo "Go to https://$IPADDY to finish nZEDb install."
+echo "Adminer is located at  https://$IPADDY/adminer.php."
 echo "For questions and problems log on to #nZEDb on irc.Synirc.net"
 echo -e "\n\n\033[0m"
 exit
