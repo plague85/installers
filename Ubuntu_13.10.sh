@@ -142,6 +142,16 @@ if [[ $PYTHONTHREE != "y" ]]; then
 	export PYTHONTHREE="n"
 fi
 
+clear
+echo -e "\033[1;33mInstall PhpStorm?\033[0m"
+echo
+echo "y=YES n=NO"
+echo
+read PHPSTORM
+if [[ $PHPSTORM != "y" ]]; then
+    export PHPSTORM="n"
+fi
+
 function purgesql {
 	if [[ $purgesql == "y" ]]; then
 		echo -e "\033[1;33mPurging postgresql\033[0m"
@@ -544,6 +554,24 @@ fi
 #install addminer
 echo -e "\033[1;33mInstalling Adminer to www/adminer.php\033[0m"
 wget http://www.adminer.org/latest.php -O /var/www/nZEDb/www/adminer.php
+
+#install PhpStorm
+if [[ $PHPSTORM == "y" ]]; then
+	cd $USER_HOME
+	apt-get purge -yqq openjdk*
+	add-apt-repository -y ppa:webupd8team/java
+	updateapt
+	apt-get install oracle-java8-installer
+	wget http://download.jetbrains.com/webide/PhpStorm-7.1.3.tar.gz
+	tar xfz PhpStorm-7.1.3.tar.gz
+	chmod +x PhpStorm-133.982/bin/phpstorm.sh
+	echo "" >> $USER_HOME/.profile
+	echo "# set PATH so it includes user's private PhpStorm bin if it exists" >> $USER_HOME/.profile
+	echo 'if [ -d "$HOME/PhpStorm-133.982/bin" ] ; then' >> $USER_HOME/.profile
+	echo '	PATH="$HOME/PhpStorm-133.982/bin:$PATH"' >> $USER_HOME/.profile
+	echo 'fi' >> $USER_HOME/.profile
+	ln -s PhpStorm-133.982/bin/phpstorm.sh $USER_HOME
+fi
 
 #ssl
 echo -e "\033[1;33mCreating Self Signed Certificate\033[0m"
