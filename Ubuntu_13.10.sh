@@ -561,7 +561,7 @@ if [[ $PHPSTORM == "y" ]]; then
 	apt-get purge -yqq openjdk*
 	add-apt-repository -y ppa:webupd8team/java
 	updateapt
-	apt-get install oracle-java8-installer
+	apt-get install oracle-java7-installer
 	wget http://download.jetbrains.com/webide/PhpStorm-7.1.3.tar.gz
 	tar xfz PhpStorm-7.1.3.tar.gz
 	chmod +x PhpStorm-133.982/bin/phpstorm.sh
