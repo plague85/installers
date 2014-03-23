@@ -39,6 +39,10 @@ if (count($session) !== 0) {
 		exec("tmux a -t $tmux_session");
 	}
 } else {
+	if (isset($argv[1]) && $argv[1] === "kill") {
+		echo "There is no session to kill.\n";
+		sleep(2);
+	}
 	exec("tmux -f ~/.tmux.conf new-session -d -s $tmux_session -n rutorrent 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent.rc'");
 	exec("tmux new-window -t $tmux_session:1 -n rutorrent-1 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-1.rc'");
 	exec("tmux new-window -t $tmux_session:2 -n rutorrent-2 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-2.rc'");
