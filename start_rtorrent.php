@@ -1,5 +1,7 @@
 <?php
 // This script will start multiple rtorrent sessions and shutdown each session before terminating.
+// This should work with cron to to keep all rtorrent sessions running.
+// To use with cron, comment out the last exec line - tmux attach
 
 // Start tmux server
 exec("tmux start-server");
