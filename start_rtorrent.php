@@ -37,7 +37,7 @@ if (count($session) !== 0) {
 		}
 		echo "\nAll rtorrent sessions terminated.\n";
 		if (isset($argv[1]) && $argv[1] === "exit") {
-			echo "tmux session $tmux_session has been terminated.\n"
+			echo "tmux session $tmux_session has been terminated.\n";
 			exec("tmux kill-session -t $tmux_session");
 		}
 	} else {
