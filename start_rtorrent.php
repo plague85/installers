@@ -1,7 +1,13 @@
 <?php
-// This script will start multiple rtorrent sessions and shutdown each session before terminating.
-// This should work with cron to to keep all rtorrent sessions running.
-// To use with cron, comment out the last exec line - tmux attach
+// This script will start multiple rtorrent sessions and shutdown each
+// session before terminating.
+
+// To use with cron:
+// crontab -e
+// */10 * * * *  /usr/bin/php ~/start_rtorrent.php cron
+
+// If you have a functioning email, email will be sent to notify
+// restarting of any rtorrent session only
 
 // Start tmux server
 exec("tmux start-server");
@@ -43,21 +49,33 @@ if (count($session) !== 0) {
 	} else {
 		// restart rtorrent sessions if dead
 		if (shell_exec("tmux list-panes -t${tmux_session}:0 | grep -c dead") == 1) {
+			echo "$tmux_session:0 appears to be dead, restarting\n";
 			exec("tmux respawnp -t $tmux_session:0 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent.rc'");
 		}
 		if (shell_exec("tmux list-panes -t${tmux_session}:1 | grep -c dead") == 1) {
+			echo "$tmux_session:1 appears to be dead, restarting\n";
 			exec("tmux respawnp -t $tmux_session:1 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-1.rc'");
 		}
 		if (shell_exec("tmux list-panes -t${tmux_session}:2 | grep -c dead") == 1) {
+			echo "$tmux_session:2 appears to be dead, restarting\n";
 			exec("tmux respawnp -t $tmux_session:2 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-2.rc'");
 		}
 		if (shell_exec("tmux list-panes -t${tmux_session}:3 | grep -c dead") == 1) {
+			echo "$tmux_session:3 appears to be dead, restarting\n";
 			exec("tmux respawnp -t $tmux_session:3 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-3.rc'");
 		}
 		if (shell_exec("tmux list-panes -t${tmux_session}:4 | grep -c dead") == 1) {
+			echo "$tmux_session:4 appears to be dead, restarting\n";
 			exec("tmux respawnp -t $tmux_session:4 'rtorrent -n -o http_capath=~/certs -o import=~/.rtorrent-4.rc'");
 		}
-		exec("tmux a -t $tmux_session");
+		if (shell_exec("tmux list-panes -t${tmux_session}:8 | grep -c dead") == 1) {
+			if ((isset($argv[1]) && $argv[1] !== 'cron') || !isset($argv[1])) {
+				exec("tmux respawnp -t $tmux_session:8 'chromium-browser'");
+			}
+		}
+		if ((isset($argv[1]) && $argv[1] !== 'cron') || !isset($argv[1])) {
+			exec("tmux a -t $tmux_session");
+		}
 	}
 } else {
 	if (isset($argv[1]) && $argv[1] === "kill") {
@@ -78,5 +96,7 @@ if (count($session) !== 0) {
 	exec("tmux selectp -t 0; tmux splitw -t $tmux_session:6 -h -p 50 'vnstat -l'");
 	exec("tmux new-window -t $tmux_session:7 -n bash 'bash -i'");
 	exec("tmux new-window -t $tmux_session:8 -n chromium 'chromium-browser'");
-	exec("tmux select-window -t $tmux_session:7; tmux attach-session -d -t $tmux_session");
+	if ((isset($argv[1]) && $argv[1] !== 'cron') || !isset($argv[1])) {
+		exec("tmux select-window -t $tmux_session:7; tmux attach-session -d -t $tmux_session");
+	}
 }
