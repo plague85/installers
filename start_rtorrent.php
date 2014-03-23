@@ -1,6 +1,10 @@
 <?php
 // This script will start multiple rtorrent sessions and shutdown each
 // session before terminating.
+// rtorrent itself can handle many 1000's of torrent, not all active at once, of course
+// but rutorrent, even stripped down and using httprpc can not handle more than a few hundred
+// without noticeable slowness. I wrote this to allow me to run any number of instances,
+// just keep adding the session info
 
 // To use with cron:
 // crontab -e
