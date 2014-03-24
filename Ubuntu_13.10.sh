@@ -456,7 +456,7 @@ if [[ $EXTRAS == "y" ]]; then
 	mv /bin/gzip /bin/gzip.old
 	ln -s /usr/bin/pigz /bin/gzip
 	echo -e  "\033[1;33mCreating VNSTAT Database for ETH0\033[0m"
-	/usr/bin/vnstat -u -i eth0
+	sudo su $SUDO_USER -c "/usr/bin/vnstat -u -i eth0"
 	sed -i 's/DAEMON=\/usr\/sbin\//DAEMON=\/usr\/bin\//' /etc/init.d/vnstat
 fi
 
